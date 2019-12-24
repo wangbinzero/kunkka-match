@@ -1,0 +1,9 @@
+server:
+  port: :8080
+log:
+  fileDir: logs
+  fileName: matching
+  prefix: kunkka
+  level: debug
+redis:
+  addr: 127.0.0.1:6379
