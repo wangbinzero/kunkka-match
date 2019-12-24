@@ -184,3 +184,8 @@ func Error(format string, v ...interface{}) {
 		fileLogger.logChan <- fmt.Sprintf("[%v:%v]", filepath.Base(file), line) + fmt.Sprintf("[INFO]"+format, v...)
 	}
 }
+
+//初始化日志
+func InitLog() {
+	Init("logs", "kunkka-match", "Kunkka -- ", "info")
+}

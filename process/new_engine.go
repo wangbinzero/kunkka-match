@@ -12,5 +12,6 @@ func NewEngine(symbol string, price decimal.Decimal) errcode.ErrorCode {
 	}
 
 	engine.ChanMap[symbol] = make(chan engine.Order, 100)
+	go engine.Run(symbol, price)
 
 }

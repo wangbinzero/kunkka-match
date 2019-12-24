@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"encoding/json"
 	"github.com/shopspring/decimal"
 	"kunkka-match/enum"
 )
@@ -14,4 +15,15 @@ type Order struct {
 	Amount    decimal.Decimal  `json:"amount"`
 	Price     decimal.Decimal  `json:"price"`
 	Timestamp int64            `json:"timestamp"`
+}
+
+// 订单转换为json
+func (this Order) toJson() []byte {
+	bytes, _ := json.Marshal(&this)
+	return bytes
+}
+
+//json解析为订单
+func (this Order) fromJson(data []byte) {
+	json.Unmarshal(data, &this)
 }
