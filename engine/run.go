@@ -4,6 +4,7 @@ import (
 	"github.com/shopspring/decimal"
 	"kunkka-match/enum"
 	"kunkka-match/log"
+	"kunkka-match/middleware/cache"
 )
 
 //启动撮合引擎
@@ -19,17 +20,18 @@ func Run(symbol string, price decimal.Decimal) {
 		if !ok {
 			log.Info("引擎 [%s] 未启动", symbol)
 			delete(ChanMap, symbol)
-
-			//TODO 清理cache缓存
+			cache.RemoveSymbol(symbol)
+			cache.RemovePrice(symbol)
 			return
 		}
 		log.Info("引擎 [%s] 收到订单: %s", symbol, order.toJson())
 
 		switch order.Action {
 		case enum.ActionCreate:
-			//TODO 创建订单
+
+			dealCreate(&order, book)
 		case enum.ActionCancel:
-			//TODO 撤销订单
+
 			dealCancel(&order, book)
 		}
 	}
@@ -47,6 +49,11 @@ func dealCancel(order *Order, book *OrderBook) {
 	}
 
 	//TODO 移除缓存
+
 	//TODO 发送到消息队列
 	log.Info("引擎 [%s],订单 [%s] 撤单结果: %s", order.Symbol, order.OrderId, ok)
+}
+
+func dealCreate(order *Order, book *OrderBook) {
+
 }

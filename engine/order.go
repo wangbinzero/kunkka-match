@@ -27,3 +27,7 @@ func (this Order) toJson() []byte {
 func (this Order) fromJson(data []byte) {
 	json.Unmarshal(data, &this)
 }
+
+func (this Order) FromMap() {
+
+}
