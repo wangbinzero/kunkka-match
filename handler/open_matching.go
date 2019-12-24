@@ -5,6 +5,7 @@ import (
 	"github.com/shopspring/decimal"
 	"io/ioutil"
 	"kunkka-match/errcode"
+	"kunkka-match/process"
 	"net/http"
 	"strings"
 )
@@ -38,7 +39,7 @@ func OpenMatching(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if e := process.NewEngine(params.Symbol, params.Price); !e.IsOk {
+	if e := process.NewEngine(params.Symbol, params.Price); !e.IsOk() {
 		w.Write(e.ToJson())
 		return
 	}

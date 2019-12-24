@@ -181,11 +181,19 @@ func Info(format string, v ...interface{}) {
 func Error(format string, v ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	if fileLogger.logLevel <= ERROR {
+		//文件行号+日志级别
 		fileLogger.logChan <- fmt.Sprintf("[%v:%v]", filepath.Base(file), line) + fmt.Sprintf("[INFO]"+format, v...)
+		fileLogger.logChan <- fmt.Sprintf("[INFO]"+format, v...)
+
 	}
 }
 
 //初始化日志
 func InitLog() {
-	Init("logs", "kunkka-match", "Kunkka -- ", "info")
+	err := Init("logs", "kunkka-match", "Kunkka -- ", "info")
+	if err != nil {
+		Error("系统日志初始化失败: %v\n", err.Error())
+	} else {
+		Info("系统日志初始化成功")
+	}
 }
