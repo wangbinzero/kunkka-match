@@ -10,6 +10,7 @@ const (
 	ActionCancel OrderAction = "cancel"
 )
 
+//返回枚举字符串
 func (o OrderAction) String() string {
 	switch o {
 	case ActionCreate:
@@ -19,4 +20,11 @@ func (o OrderAction) String() string {
 	default:
 		return "unknown"
 	}
+}
+
+func (this OrderAction) Valid() bool {
+	if this.String() == "unknown" {
+		return false
+	}
+	return true
 }
