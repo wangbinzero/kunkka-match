@@ -1,16 +1,16 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/go-redis/redis"
-	"github.com/spf13/viper"
 )
 
 var RedisClient *redis.Client
 
 func Init() {
-	addr := viper.GetString("redis.addr")
+	//addr := viper.GetString("redis.addr")
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     addr,
+		Addr:     "127.0.0.1:6379",
 		Password: "",
 		DB:       0,
 	})
@@ -18,6 +18,7 @@ func Init() {
 	if err != nil {
 		panic(err)
 	} else {
-		//TODO 预留日志输出
+		fmt.Printf("Redis初始化成功，地址: [%s]", "127.0.0.1:6379")
+		//log.Info("Redis初始化成功，地址: [%s]","127.0.0.1:6379")
 	}
 }

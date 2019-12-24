@@ -3,15 +3,15 @@ package enum
 type OrderSide string
 
 const (
-	Buy  OrderSide = "buy"
-	Sell OrderSide = "sell"
+	SideBuy  OrderSide = "buy"
+	SideSell OrderSide = "sell"
 )
 
 func (this OrderSide) String() string {
 	switch this {
-	case Buy:
+	case SideBuy:
 		return "buy"
-	case Sell:
+	case SideSell:
 		return "sell"
 	default:
 		return "unknown"

@@ -8,7 +8,7 @@ type OrderBook struct {
 }
 
 // 初始化订单簿
-func (this *OrderBook) init(symbol string) {
+func (this *OrderBook) init() {
 	buyOrderQueue := &orderQueue{}
 	buyOrderQueue.init(enum.SortDirectionAsc)
 
@@ -50,11 +50,11 @@ func (this *OrderBook) popHeadSellOrder() {
 }
 
 //从订单簿 移除买单
-func (this *OrderBook) removeBuyOrder(order Order) {
+func (this *OrderBook) removeBuyOrder(order *Order) bool {
 
 }
 
 //从订单簿 移除卖单
-func (this *OrderBook) removeSellOrder(order Order) {
+func (this *OrderBook) removeSellOrder(order *Order) bool {
 
 }
