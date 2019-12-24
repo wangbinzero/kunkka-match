@@ -3,6 +3,7 @@ package cache
 import (
 	"fmt"
 	"github.com/shopspring/decimal"
+	"kunkka-match/engine"
 	"kunkka-match/middleware"
 )
 
@@ -41,4 +42,9 @@ func GetPrice(symbol string) decimal.Decimal {
 	str := middleware.RedisClient.Get("kunkka:match:price:" + symbol).Val()
 	val, _ := decimal.NewFromString(str)
 	return val
+}
+
+// 从缓存查询订单
+func GetOrder(symbol, orderId string) engine.Order {
+	return engine.Order{}
 }

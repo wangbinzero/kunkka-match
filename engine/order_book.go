@@ -51,10 +51,10 @@ func (this *OrderBook) popHeadSellOrder() {
 
 //从订单簿 移除买单
 func (this *OrderBook) removeBuyOrder(order *Order) bool {
-
+	return false
 }
 
 //从订单簿 移除卖单
 func (this *OrderBook) removeSellOrder(order *Order) bool {
-
+	return false
 }

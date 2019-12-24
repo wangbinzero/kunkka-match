@@ -3,14 +3,15 @@ package middleware
 import (
 	"fmt"
 	"github.com/go-redis/redis"
+	"kunkka-match/conf"
 )
 
 var RedisClient *redis.Client
 
 func Init() {
-	//addr := viper.GetString("redis.addr")
+	addr := conf.Gconfig.GetString("redis.addr")
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
+		Addr:     addr,
 		Password: "",
 		DB:       0,
 	})
