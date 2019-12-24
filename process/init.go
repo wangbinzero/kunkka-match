@@ -16,7 +16,7 @@ func Init() {
 		NewEngine(symbol, price)
 
 		//查询缓存中的订单ID列表
-		orderIds := cache.GetOrderIds(symbol)
+		orderIds := cache.GetOrderIdsWithAction(symbol)
 		for _, orderId := range orderIds {
 			//查询缓存中订单对象
 			// TODO

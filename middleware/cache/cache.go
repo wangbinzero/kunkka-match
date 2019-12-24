@@ -2,6 +2,7 @@ package cache
 
 import (
 	"fmt"
+	"github.com/go-redis/redis"
 	"github.com/shopspring/decimal"
 	"kunkka-match/middleware"
 )
@@ -51,18 +52,40 @@ func RemovePrice(symbol string) {
 	middleware.RedisClient.Del("kunkka:match:price" + symbol)
 }
 
-// 从缓存查询订单
-//func GetOrder(symbol, orderId string) engine.Order {
-//	middleware.RedisClient.Get("kunkka:match:order:")
-//	return engine.Order{}
-//}
-
-//func SaveOrder(order engine.Order)  {
-//	middleware.RedisClient.Set()
-//}
-
 // 根据交易对查询订单ID列表
 func GetOrderIds(symbol string) []string {
 	orderIds, _ := middleware.RedisClient.LRange("kunkka:match:orderids:"+symbol, 0, -1).Result()
 	return orderIds
+}
+
+// 将订单写入缓存
+func SaveOrder(order map[string]interface{}) {
+	symbol := order["symbol"].(string)
+	orderId := order["orderId"].(string)
+	timestamp := order["timestamp"].(float64)
+	action := order["action"].(string)
+	middleware.RedisClient.HMSet("kunkka:match:orders:"+symbol+":"+orderId+":"+action, order)
+
+	z := redis.Z{
+		Score:  timestamp,
+		Member: orderId + ":" + action,
+	}
+	middleware.RedisClient.ZAdd("kunkka:match:orderids:"+symbol, z)
+}
+
+//查询订单ID集合
+func GetOrderIdsWithAction(symbol string) []string {
+	return middleware.RedisClient.ZRange("kunkka:match:orderids:"+symbol, 0, -1).Val()
+}
+
+func UpdateOrder() {
+
+}
+
+func RemoveOrder() {
+
+}
+
+func OrderExist() {
+
 }
