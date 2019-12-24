@@ -32,6 +32,13 @@ func RemoveAllSymbol() {
 }
 
 //保存交易标的以及价格
-func SavePrice(symbol string, price decimal.Decimal) {
+func SavePrice(symbol string, price string) {
+	middleware.RedisClient.Set("kunkka:match:price:"+symbol, price, 0)
+}
 
+// 根据交易标的查询价格
+func GetPrice(symbol string) decimal.Decimal {
+	str := middleware.RedisClient.Get("kunkka:match:price:" + symbol).Val()
+	val, _ := decimal.NewFromString(str)
+	return val
 }

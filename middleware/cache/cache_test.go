@@ -24,3 +24,13 @@ func TestRemoveSymbol(t *testing.T) {
 	middleware.Init()
 	RemoveSymbol("btcusdt")
 }
+
+func TestSavePrice(t *testing.T) {
+	middleware.Init()
+	SavePrice("btcusdt", "7600")
+}
+
+func TestGetPrice(t *testing.T) {
+	middleware.Init()
+	GetPrice("btcusdt")
+}
