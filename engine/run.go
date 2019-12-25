@@ -60,15 +60,15 @@ func dealCreate(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	case enum.Limit:
 		dealLimit(order, book, lastTradePrice)
 	case enum.LimitIoc:
-		dealLimitIoc(order, book, lastTradePrice)
+		//dealLimitIoc(order, book, lastTradePrice)
 	case enum.Market:
-		dealMarket(order, book, lastTradePrice)
+		//dealMarket(order, book, lastTradePrice)
 	case enum.MarketTop5:
-		dealMarketTop5(order, book, lastTradePrice)
+		//dealMarketTop5(order, book, lastTradePrice)
 	case enum.MarketTop10:
-		dealMarketTop10(order, book, lastTradePrice)
+		//dealMarketTop10(order, book, lastTradePrice)
 	case enum.MarketOpponent:
-		dealMarketOpponent(order, book, lastTradePrice)
+		//dealMarketOpponent(order, book, lastTradePrice)
 
 	}
 }

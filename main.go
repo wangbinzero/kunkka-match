@@ -1,6 +1,7 @@
 package main
 
 import (
+	"kunkka-match/common"
 	"kunkka-match/conf"
 	"kunkka-match/engine"
 	"kunkka-match/handler"
@@ -14,6 +15,7 @@ import (
 func init() {
 	conf.LoadConfig()
 	log.InitLog()
+	log.Info(common.Logo)
 	engine.Init()
 	middleware.Init()
 	process.Init()
@@ -24,5 +26,9 @@ func main() {
 	mux.HandleFunc("/openMatching", handler.OpenMatching)
 	mux.HandleFunc("/closeMatching", handler.CloseMatching)
 	mux.HandleFunc("/handleOrder", handler.HandleOrder)
-	//log.Info("")
+
+	port := conf.Gconfig.GetString("server.port")
+	log.Info("访问地址: %s\n", port)
+	http.ListenAndServe(port, mux)
+
 }

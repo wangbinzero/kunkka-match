@@ -3,7 +3,9 @@ package engine
 import (
 	"encoding/json"
 	"github.com/shopspring/decimal"
+	"kunkka-match/common"
 	"kunkka-match/enum"
+	"strconv"
 )
 
 type Order struct {
@@ -28,6 +30,10 @@ func (this Order) fromJson(data []byte) {
 	json.Unmarshal(data, &this)
 }
 
-func (this Order) FromMap() {
-
+func (this Order) FromMap(data []interface{}) {
+	this.Symbol = data[0].(string)
+	this.OrderId = data[1].(string)
+	s, _ := strconv.ParseFloat(data[2].(string), 64)
+	this.Timestamp = common.Wrap(s, 10)
+	this.Action = enum.OrderAction(data[3].(string))
 }

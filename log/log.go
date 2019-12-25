@@ -190,10 +190,5 @@ func Error(format string, v ...interface{}) {
 
 //初始化日志
 func InitLog() {
-	err := Init("logs", "kunkka-match", "[KUNKKA] –– ", "info")
-	if err != nil {
-		Error("系统日志初始化失败: %v\n", err.Error())
-	} else {
-		Info("系统日志初始化成功")
-	}
+	Init("logs", "kunkka-match", "[KUNKKA] –– ", "info")
 }

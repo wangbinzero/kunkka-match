@@ -46,3 +46,8 @@ func TestSaveOrder(t *testing.T) {
 	order["action"] = "buy"
 	SaveOrder(order)
 }
+
+func TestGetOrder(t *testing.T) {
+	middleware.Init()
+	GetOrder("btcusdt", "123456")
+}

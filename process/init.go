@@ -19,12 +19,9 @@ func Init() {
 		orderIds := cache.GetOrderIdsWithAction(symbol)
 		for _, orderId := range orderIds {
 			//查询缓存中订单对象
-			// TODO
 			mapOrder := cache.GetOrder(symbol, orderId)
 			order := engine.Order{}
-
-			//TODO
-			order.FromMap()
+			order.FromMap(mapOrder)
 			engine.ChanMap[order.Symbol] <- order
 		}
 	}

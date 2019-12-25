@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"github.com/go-redis/redis"
 	"github.com/shopspring/decimal"
 	"kunkka-match/common"
@@ -56,12 +57,11 @@ func SaveOrder(order map[string]interface{}) {
 	symbol := order["symbol"].(string)
 	orderId := order["orderId"].(string)
 	timestamp := order["timestamp"].(float64)
-	action := order["action"].(string)
-	middleware.RedisClient.HMSet(common.OrderKey+symbol+":"+orderId+":"+action, order)
+	middleware.RedisClient.HMSet(common.OrderKey+symbol+":"+orderId, order)
 
 	z := redis.Z{
 		Score:  timestamp,
-		Member: orderId + ":" + action,
+		Member: orderId,
 	}
 	middleware.RedisClient.ZAdd(common.OrderIdsKey+symbol, z)
 }
@@ -69,6 +69,13 @@ func SaveOrder(order map[string]interface{}) {
 //查询订单ID集合
 func GetOrderIdsWithAction(symbol string) []string {
 	return middleware.RedisClient.ZRange(common.OrderIdsKey+symbol, 0, -1).Val()
+}
+
+func GetOrder(symbol, orderId string) []interface{} {
+
+	res := middleware.RedisClient.HMGet(common.OrderKey+symbol+":"+orderId, "symbol", "orderId", "timestamp", "action").Val()
+	fmt.Println("查询订单: ", res)
+	return res
 }
 
 func UpdateOrder() {
