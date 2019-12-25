@@ -30,10 +30,10 @@ func (this Order) fromJson(data []byte) {
 	json.Unmarshal(data, &this)
 }
 
-func (this Order) FromMap(data []interface{}) {
-	this.Symbol = data[0].(string)
-	this.OrderId = data[1].(string)
-	s, _ := strconv.ParseFloat(data[2].(string), 64)
+func (this Order) FromMap(data map[string]string) {
+	this.Symbol = data["symbol"]
+	this.OrderId = data["orderId"]
+	s, _ := strconv.ParseFloat(data["timestamp"], 64)
 	this.Timestamp = common.Wrap(s, 10)
-	this.Action = enum.OrderAction(data[3].(string))
+	this.Action = enum.OrderAction(data["action"])
 }

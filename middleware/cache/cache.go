@@ -71,9 +71,10 @@ func GetOrderIdsWithAction(symbol string) []string {
 	return middleware.RedisClient.ZRange(common.OrderIdsKey+symbol, 0, -1).Val()
 }
 
-func GetOrder(symbol, orderId string) []interface{} {
+func GetOrder(symbol, orderId string) map[string]string {
 
-	res := middleware.RedisClient.HMGet(common.OrderKey+symbol+":"+orderId, "symbol", "orderId", "timestamp", "action").Val()
+	// hgetall  查询redis所有 值
+	res := middleware.RedisClient.HGetAll(common.OrderKey + symbol + ":" + orderId).Val()
 	fmt.Println("查询订单: ", res)
 	return res
 }
@@ -82,10 +83,12 @@ func UpdateOrder() {
 
 }
 
-func RemoveOrder() {
-
+// 删除缓存中订单信息
+func RemoveOrder(symbol, orderId string) {
+	middleware.RedisClient.Del(common.OrderKey + symbol + ":" + orderId)
 }
 
-func OrderExist() {
-
+// 判断缓存中是否存在订单
+func OrderExist(symbol, orderId string) bool {
+	return middleware.RedisClient.HExists(common.OrderKey+symbol+":"+orderId, "symbol").Val()
 }
