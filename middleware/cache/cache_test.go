@@ -1,8 +1,10 @@
 package cache
 
 import (
+	"kunkka-match/common"
 	"kunkka-match/middleware"
 	"testing"
+	"time"
 )
 
 // 保存交易标的
@@ -33,4 +35,14 @@ func TestSavePrice(t *testing.T) {
 func TestGetPrice(t *testing.T) {
 	middleware.Init()
 	GetPrice("btcusdt")
+}
+
+func TestSaveOrder(t *testing.T) {
+	middleware.Init()
+	order := make(map[string]interface{})
+	order["symbol"] = "btcusdt"
+	order["orderId"] = "123456"
+	order["timestamp"] = common.Unwrap(time.Now().UnixNano(), 10)
+	order["action"] = "buy"
+	SaveOrder(order)
 }

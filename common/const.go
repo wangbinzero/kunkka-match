@@ -8,6 +8,6 @@ const (
 const (
 	SymbolKey   string = "kunkka:match:symbol"
 	PriceKey    string = "kunkka:match:price:"
-	OrderKey    string = "kunkka:match:orders"
+	OrderKey    string = "kunkka:match:orders:"
 	OrderIdsKey string = "kunkka:match:orderids:"
 )

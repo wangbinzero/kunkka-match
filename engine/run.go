@@ -9,7 +9,7 @@ import (
 
 //启动撮合引擎
 func Run(symbol string, price decimal.Decimal) {
-	//lastTradePrice := price
+	lastTradePrice := price
 	book := &OrderBook{}
 
 	//初始化订单簿
@@ -29,7 +29,7 @@ func Run(symbol string, price decimal.Decimal) {
 		switch order.Action {
 		case enum.ActionCreate:
 
-			dealCreate(&order, book)
+			dealCreate(&order, book, lastTradePrice)
 		case enum.ActionCancel:
 
 			dealCancel(&order, book)
@@ -54,6 +54,29 @@ func dealCancel(order *Order, book *OrderBook) {
 	log.Info("引擎 [%s],订单 [%s] 撤单结果: %s", order.Symbol, order.OrderId, ok)
 }
 
-func dealCreate(order *Order, book *OrderBook) {
+// 创建订单
+func dealCreate(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
+	switch order.Type {
+	case enum.Limit:
+		dealLimit(order, book, lastTradePrice)
+	case enum.LimitIoc:
+		dealLimitIoc(order, book, lastTradePrice)
+	case enum.Market:
+		dealMarket(order, book, lastTradePrice)
+	case enum.MarketTop5:
+		dealMarketTop5(order, book, lastTradePrice)
+	case enum.MarketTop10:
+		dealMarketTop10(order, book, lastTradePrice)
+	case enum.MarketOpponent:
+		dealMarketOpponent(order, book, lastTradePrice)
 
+	}
+}
+
+func dealLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
+	switch order.Side {
+	case enum.SideBuy:
+	case enum.SideSell:
+
+	}
 }

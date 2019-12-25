@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"fmt"
 	"github.com/go-redis/redis"
 	"github.com/shopspring/decimal"
 	"kunkka-match/common"
@@ -10,7 +9,6 @@ import (
 
 func GetSymbols() []string {
 	symbols, _ := middleware.RedisClient.SMembers(common.SymbolKey).Result()
-	fmt.Printf("Redis 查询交易对列表: [%v]\n", symbols)
 	return symbols
 }
 
@@ -51,12 +49,6 @@ func GetPrice(symbol string) decimal.Decimal {
 
 func RemovePrice(symbol string) {
 	middleware.RedisClient.Del(common.PriceKey + symbol)
-}
-
-// 根据交易对查询订单ID列表
-func GetOrderIds(symbol string) []string {
-	orderIds, _ := middleware.RedisClient.LRange(common.OrderIdsKey+symbol, 0, -1).Result()
-	return orderIds
 }
 
 // 将订单写入缓存
