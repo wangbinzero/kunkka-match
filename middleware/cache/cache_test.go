@@ -43,7 +43,8 @@ func TestSaveOrder(t *testing.T) {
 	order["symbol"] = "btcusdt"
 	order["orderId"] = "123456"
 	order["timestamp"] = common.Unwrap(time.Now().UnixNano(), 10)
-	order["action"] = "buy"
+	order["action"] = "cancel"
+	order["type"] = "limit"
 	SaveOrder(order)
 }
 

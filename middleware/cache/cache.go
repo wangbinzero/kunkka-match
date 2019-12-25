@@ -54,14 +54,16 @@ func RemovePrice(symbol string) {
 
 // 将订单写入缓存
 func SaveOrder(order map[string]interface{}) {
+	action := order["action"].(string)
 	symbol := order["symbol"].(string)
 	orderId := order["orderId"].(string)
 	timestamp := order["timestamp"].(float64)
-	middleware.RedisClient.HMSet(common.OrderKey+symbol+":"+orderId, order)
+	//订单ID + 订单标志[ 下单/撤单 ]
+	middleware.RedisClient.HMSet(common.OrderKey+symbol+":"+orderId+":"+action, order)
 
 	z := redis.Z{
 		Score:  timestamp,
-		Member: orderId,
+		Member: orderId + ":" + action,
 	}
 	middleware.RedisClient.ZAdd(common.OrderIdsKey+symbol, z)
 }

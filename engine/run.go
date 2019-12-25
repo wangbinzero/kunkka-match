@@ -28,7 +28,6 @@ func Run(symbol string, price decimal.Decimal) {
 
 		switch order.Action {
 		case enum.ActionCreate:
-
 			dealCreate(&order, book, lastTradePrice)
 		case enum.ActionCancel:
 
@@ -51,7 +50,7 @@ func dealCancel(order *Order, book *OrderBook) {
 	//TODO 移除缓存
 
 	//TODO 发送到消息队列
-	log.Info("引擎 [%s],订单 [%s] 撤单结果: %s", order.Symbol, order.OrderId, ok)
+	log.Info("引擎 [%s],订单 [%s] 撤单结果: %v\n", order.Symbol, order.OrderId, ok)
 }
 
 // 创建订单
@@ -76,7 +75,8 @@ func dealCreate(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 func dealLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	switch order.Side {
 	case enum.SideBuy:
+		log.Info("限价买单: 订单号: %s  方向: %s\n", order.OrderId, order.Type)
 	case enum.SideSell:
-
+		log.Info("限价买单: 订单号: %s  方向: %s\n", order.OrderId, order.Type)
 	}
 }

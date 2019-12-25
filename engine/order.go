@@ -30,7 +30,7 @@ func (this Order) fromJson(data []byte) {
 	json.Unmarshal(data, &this)
 }
 
-func (this Order) FromMap(data map[string]string) {
+func (this *Order) FromMap(data map[string]string) {
 	this.Symbol = data["symbol"]
 	this.OrderId = data["orderId"]
 	s, _ := strconv.ParseFloat(data["timestamp"], 64)
