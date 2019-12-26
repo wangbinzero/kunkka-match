@@ -9,11 +9,14 @@ type OrderBook struct {
 
 // 初始化订单簿
 func (this *OrderBook) init() {
-	buyOrderQueue := &orderQueue{}
-	buyOrderQueue.init(enum.SortDirectionAsc)
 
+	//买单队列 降序
+	buyOrderQueue := &orderQueue{}
+	buyOrderQueue.init(enum.SortDirectionDesc)
+
+	//卖单队列 升序
 	sellOrderQueue := &orderQueue{}
-	sellOrderQueue.init(enum.SortDirectionDesc)
+	sellOrderQueue.init(enum.SortDirectionAsc)
 
 	this.sellOrderQueue = sellOrderQueue
 	this.buyOrderQueue = buyOrderQueue
