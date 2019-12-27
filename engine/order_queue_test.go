@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"container/list"
+	"fmt"
 	"github.com/shopspring/decimal"
 	"kunkka-match/enum"
 	"testing"
@@ -23,7 +25,7 @@ func TestInit(t *testing.T) {
 	order1 := Order{
 		Action:    "create",
 		Symbol:    "btcusdt",
-		OrderId:   "123457",
+		OrderId:   "1234567",
 		Side:      "buy",
 		Type:      "limit",
 		Amount:    decimal.NewFromInt(4),
@@ -34,7 +36,7 @@ func TestInit(t *testing.T) {
 	order2 := Order{
 		Action:    "create",
 		Symbol:    "btcusdt",
-		OrderId:   "123457",
+		OrderId:   "12345678",
 		Side:      "buy",
 		Type:      "limit",
 		Amount:    decimal.NewFromInt(4),
@@ -45,4 +47,11 @@ func TestInit(t *testing.T) {
 	orderQueue.addOrder(order)
 	orderQueue.addOrder(order1)
 	orderQueue.addOrder(order2)
+
+	for e := orderQueue.parentList.Front(); e != nil; e = e.Next() {
+		for el := e.Value.(*list.List).Front(); el != nil; el = el.Next() {
+			fmt.Println("打印:", el.Value)
+		}
+
+	}
 }

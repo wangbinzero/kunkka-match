@@ -2,7 +2,6 @@ package engine
 
 import (
 	"container/list"
-	"fmt"
 	"kunkka-match/enum"
 )
 
@@ -105,28 +104,28 @@ func (this *orderQueue) addOrder(order Order) {
 			}
 		}
 	}
-
-	for e := this.parentList.Front(); e != nil; e = e.Next() {
-		for el := e.Value.(*list.List).Front(); el != nil; el = el.Next() {
-			fmt.Println("打印:", el.Value)
-		}
-
-	}
 }
 
 // 读取头部订单
-func (this *orderQueue) getHeadOrder() {
-
+func (this *orderQueue) getHeadOrder() Order {
+	return this.parentList.Front().Value.(*list.List).Front().Value.(Order)
 }
 
 // 读取并删除头部订单
-func (this *orderQueue) popHeadOrder() {
-
+func (this *orderQueue) popHeadOrder() Order {
+	el := this.parentList.Front().Value.(*list.List).Front()
+	this.parentList.Remove(el)
+	order := el.Value.(Order)
+	delete(this.elementMap, order.Price.String())
+	return order
 }
 
 // 移除订单
 func (this *orderQueue) removeOrder(order Order) {
-
+	el, ok := this.elementMap[order.Price.String()]
+	if ok {
+		this.parentList.Remove(el)
+	}
 }
 
 // 读取深度价格
