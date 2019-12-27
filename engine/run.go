@@ -14,11 +14,11 @@ func Run(symbol string, price decimal.Decimal) {
 
 	//初始化订单簿
 	book.init()
-	log.Info("Engine [%s] startup success", symbol)
+	log.Info("Engine [%s] startup success\n", symbol)
 	for {
 		order, ok := <-ChanMap[symbol]
 		if !ok {
-			log.Info("Engine [%s] is not running", symbol)
+			log.Info("Engine [%s] is not running\n", symbol)
 			delete(ChanMap, symbol)
 			cache.RemoveSymbol(symbol)
 			cache.RemovePrice(symbol)
@@ -81,14 +81,14 @@ func dealLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 
 //限价挂单  -- 买单
 func dealBuyLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
-	log.Info("Receive buy limit order: %s", order.toJson())
+	log.Info("Receive buy limit order: %s\n", order.toJson())
 LOOP:
 	headOrder := book.getHeadSellOrder()
 	if headOrder == (Order{}) || order.Price.LessThan(headOrder.Price) {
 		book.addBuyOrder(*order)
-		log.Info("Engine %s, a order has added to the orderBook: %s", order.Symbol, order.toJson())
+		log.Info("Engine %s, a order has added to the orderBook: %s\n", order.Symbol, order.toJson())
 	} else {
-		mathTrade(headOrder, order, book, lastTradePrice)
+		matchTrade(headOrder, order, book, lastTradePrice)
 		if order.Amount.IsPositive() {
 			goto LOOP
 		}
@@ -98,14 +98,31 @@ LOOP:
 //限价挂单 -- 卖单
 func dealSellLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	log.Info("Receive sell limit order: %s", order.toJson())
+LOOP:
+	headOrder := book.getHeadBuyOrder()
+	if headOrder == (Order{}) || order.Price.GreaterThan(headOrder.Price) {
+		book.addSellOrder(*order)
+		log.Info("Engine %s, a order added to the orderBook: %s\n", order.Symbol, order.toJson())
+	} else {
+		matchTrade(headOrder, order, book, lastTradePrice)
+		if order.Amount.IsPositive() {
+			goto LOOP
+		}
+	}
 }
 
 //成交撮合
 //做数量减法即可
-func mathTrade(headOrder Order, order *Order, book *OrderBook, lastTradePrice decimal.Decimal) *Order {
+func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice decimal.Decimal) *Order {
 	result := order.Amount.Sub(headOrder.Amount)
 	order.Amount = result
-	if result.Cmp(decimal.Zero) > 0 {
+	if result.Cmp(decimal.Zero) >= 0 {
+		if headOrder.Side == enum.SideBuy {
+			book.removeBuyOrder(headOrder)
+		} else if headOrder.Side == enum.SideSell {
+			book.removeSellOrder(headOrder)
+		}
+	} else {
 
 	}
 	return order
