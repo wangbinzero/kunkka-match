@@ -20,9 +20,9 @@ type Order struct {
 }
 
 // 订单转换为json
-func (this Order) toJson() []byte {
+func (this Order) toJson() string {
 	bytes, _ := json.Marshal(&this)
-	return bytes
+	return string(bytes)
 }
 
 //json解析为订单

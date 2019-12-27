@@ -14,18 +14,16 @@ func Run(symbol string, price decimal.Decimal) {
 
 	//初始化订单簿
 	book.init()
-	log.Info("引擎 [%s] 启动成功", symbol)
+	log.Info("Engine [%s] startup success", symbol)
 	for {
 		order, ok := <-ChanMap[symbol]
 		if !ok {
-			log.Info("引擎 [%s] 未启动", symbol)
+			log.Info("Engine [%s] is not running", symbol)
 			delete(ChanMap, symbol)
 			cache.RemoveSymbol(symbol)
 			cache.RemovePrice(symbol)
 			return
 		}
-		log.Info("引擎 [%s] 收到订单: %s", symbol, order.toJson())
-
 		switch order.Action {
 		case enum.ActionCreate:
 			dealCreate(&order, book, lastTradePrice)
@@ -41,16 +39,15 @@ func dealCancel(order *Order, book *OrderBook) {
 	var ok bool
 	switch order.Side {
 	case enum.SideBuy:
-		ok = book.removeBuyOrder(order)
+		book.removeBuyOrder(order)
 	case enum.SideSell:
-		ok = book.removeSellOrder(order)
+		book.removeSellOrder(order)
 	}
 
 	//TODO 移除缓存
 
-	log.Debug("引擎 [%s],订单 [%s] 撤单结果: %v\n", order.Symbol, order.OrderId, ok)
 	//TODO 发送到消息队列
-	log.Info("引擎 [%s],订单 [%s] 撤单结果: %v\n", order.Symbol, order.OrderId, ok)
+	log.Info("Engine: [%s],orderId: [%s] cancelResult: %v\n", order.Symbol, order.OrderId, ok)
 }
 
 // 创建订单
@@ -72,11 +69,44 @@ func dealCreate(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	}
 }
 
+//限价挂单
 func dealLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	switch order.Side {
 	case enum.SideBuy:
-		log.Info("限价买单: 订单号: %s  方向: %s\n", order.OrderId, order.Type)
+		dealBuyLimit(order, book, lastTradePrice)
 	case enum.SideSell:
-		log.Info("限价买单: 订单号: %s  方向: %s\n", order.OrderId, order.Type)
+		dealSellLimit(order, book, lastTradePrice)
 	}
+}
+
+//限价挂单  -- 买单
+func dealBuyLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
+	log.Info("Receive buy limit order: %s", order.toJson())
+LOOP:
+	headOrder := book.getHeadSellOrder()
+	if headOrder == (Order{}) || order.Price.LessThan(headOrder.Price) {
+		book.addBuyOrder(*order)
+		log.Info("Engine %s, a order has added to the orderBook: %s", order.Symbol, order.toJson())
+	} else {
+		mathTrade(headOrder, order, book, lastTradePrice)
+		if order.Amount.IsPositive() {
+			goto LOOP
+		}
+	}
+}
+
+//限价挂单 -- 卖单
+func dealSellLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
+	log.Info("Receive sell limit order: %s", order.toJson())
+}
+
+//成交撮合
+//做数量减法即可
+func mathTrade(headOrder Order, order *Order, book *OrderBook, lastTradePrice decimal.Decimal) *Order {
+	result := order.Amount.Sub(headOrder.Amount)
+	order.Amount = result
+	if result.Cmp(decimal.Zero) > 0 {
+
+	}
+	return order
 }
