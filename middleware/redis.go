@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/go-redis/redis"
+	"kunkka-match/log"
 )
 
 var RedisClient *redis.Client
@@ -16,9 +16,9 @@ func Init() {
 	})
 	_, err := RedisClient.Ping().Result()
 	if err != nil {
+		log.Error("Connection redis error: %v\n", err.Error())
 		panic(err)
 	} else {
-		fmt.Printf("Redis初始化成功，地址: [%s]", "127.0.0.1:6379")
-		//log.Info("Redis初始化成功，地址: [%s]","127.0.0.1:6379")
+		log.Info("Connection redis[%v] success \n", RedisClient.Options().Addr)
 	}
 }

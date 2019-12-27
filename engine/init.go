@@ -7,5 +7,5 @@ var ChanMap map[string]chan Order
 
 func Init() {
 	ChanMap = make(map[string]chan Order)
-	log.Info("交易标的定序队列 [ChanMap] 初始化完毕")
+	log.Info("Order channel [ChanMap] init success\n")
 }

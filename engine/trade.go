@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"encoding/json"
 	"github.com/shopspring/decimal"
 	"kunkka-match/enum"
 	"kunkka-match/log"
@@ -16,8 +17,10 @@ type Trade struct {
 	Timestamp time.Time       `json:"timestamp"`
 }
 
-func (this Trade) toJson() {
-
+//成交对象结果转换为json字符串
+func (this Trade) toJson() string {
+	bytes, _ := json.Marshal(&this)
+	return string(bytes)
 }
 
 //成交撮合
@@ -62,6 +65,11 @@ func dealCancel(order *Order, book *OrderBook) {
 	log.Info("Engine: [%s],orderId: [%s] cancelResult: %v\n", order.Symbol, order.OrderId, ok)
 }
 
+//撤单逻辑处理
+func cancelOrder(order *Order, book *OrderBook) {
+
+}
+
 // 创建订单
 func dealCreate(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	switch order.Type {
@@ -100,7 +108,7 @@ LOOP:
 		book.addBuyOrder(*order)
 		log.Info("Engine %s, a order has added to the orderBook: %s\n", order.Symbol, order.toJson())
 	} else {
-		matchTrade(headOrder, order, book, lastTradePrice)
+		matchTrade(&headOrder, order, book, lastTradePrice)
 		if order.Amount.IsPositive() {
 			goto LOOP
 		}
@@ -116,7 +124,7 @@ LOOP:
 		book.addSellOrder(*order)
 		log.Info("Engine %s, a order added to the orderBook: %s\n", order.Symbol, order.toJson())
 	} else {
-		matchTrade(headOrder, order, book, lastTradePrice)
+		matchTrade(&headOrder, order, book, lastTradePrice)
 		if order.Amount.IsPositive() {
 			goto LOOP
 		}
