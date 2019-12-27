@@ -125,6 +125,7 @@ func (this *orderQueue) removeOrder(order Order) {
 	el, ok := this.elementMap[order.Price.String()]
 	if ok {
 		this.parentList.Remove(el)
+		delete(this.elementMap, order.Price.String())
 	}
 }
 
