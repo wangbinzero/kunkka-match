@@ -130,7 +130,7 @@ func (this *FileLogger) fileMonitor() {
 		case <-ticker.C:
 			if this.isMustSplit() {
 				if err := this.split(); err != nil {
-					Error("日志分割错误: %v\n", err)
+					Error("Log split error: %v\n", err.Error())
 				}
 			}
 		}
