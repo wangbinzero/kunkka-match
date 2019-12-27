@@ -30,7 +30,6 @@ func Run(symbol string, price decimal.Decimal) {
 		case enum.ActionCreate:
 			dealCreate(&order, book, lastTradePrice)
 		case enum.ActionCancel:
-
 			dealCancel(&order, book)
 		}
 	}
@@ -49,6 +48,7 @@ func dealCancel(order *Order, book *OrderBook) {
 
 	//TODO 移除缓存
 
+	log.Debug("引擎 [%s],订单 [%s] 撤单结果: %v\n", order.Symbol, order.OrderId, ok)
 	//TODO 发送到消息队列
 	log.Info("引擎 [%s],订单 [%s] 撤单结果: %v\n", order.Symbol, order.OrderId, ok)
 }

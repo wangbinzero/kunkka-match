@@ -188,6 +188,18 @@ func Error(format string, v ...interface{}) {
 	}
 }
 
+func Debug(format string, v ...interface{}) {
+	if fileLogger.logLevel <= DEBUG {
+		fmt.Printf("[DEBUG]"+format, v...)
+	}
+}
+
+func Warn(format string, v ...interface{}) {
+	if fileLogger.logLevel <= WARN {
+		fileLogger.logChan <- fmt.Sprintf("[WARN]"+format, v...)
+	}
+}
+
 //初始化日志
 func InitLog() {
 	Init("logs", "kunkka-match", "[KUNKKA] –– ", "info")
