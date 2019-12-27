@@ -27,9 +27,22 @@ func TestInit(t *testing.T) {
 		Side:      "buy",
 		Type:      "limit",
 		Amount:    decimal.NewFromInt(4),
-		Price:     decimal.NewFromInt(7200),
+		Price:     decimal.NewFromInt(7000),
 		Timestamp: time.Now().UnixNano(),
 	}
+
+	order2 := Order{
+		Action:    "create",
+		Symbol:    "btcusdt",
+		OrderId:   "123457",
+		Side:      "buy",
+		Type:      "limit",
+		Amount:    decimal.NewFromInt(4),
+		Price:     decimal.NewFromInt(7400),
+		Timestamp: time.Now().UnixNano(),
+	}
+
 	orderQueue.addOrder(order)
 	orderQueue.addOrder(order1)
+	orderQueue.addOrder(order2)
 }

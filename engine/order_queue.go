@@ -32,39 +32,74 @@ func (this *orderQueue) addOrder(order Order) {
 		//新建子链表 并且将订单插入子链表
 		newList := list.New()
 		newList.PushFront(order)
-
 		//将子链表插入父链表
-		this.parentList.PushFrontList(newList)
-
+		el := this.parentList.PushFront(newList)
 		//将子链表添加到map中
-		this.elementMap[order.Price.String()] = newList.Front()
+		this.elementMap[order.Price.String()] = el
 	} else {
-
 		//读取map中该价格的链表
-		val, ok := this.elementMap[order.Price.String()]
+		el, ok := this.elementMap[order.Price.String()]
 		if ok {
-			//存在
-			val.Value.(*list.List).PushBack(order)
+			//当前价格的数据已经存在，则需要根据时间序列，将此条数据放在查询出来的数据的后面
+			el.Value.(*list.List).PushBack(order)
 		} else {
+			//创建新子链
 			newList := list.New()
 			newList.PushFront(order)
-			for e := this.parentList.Front(); e != nil; e = e.Next() {
-				v := e.Value.(Order)
-				//升序
-				if this.sortBy == enum.SortDirectionAsc {
-					//如果新订单价格小于订单价格
-					if order.Price.LessThan(v.Price) {
-						e.Value.(*list.List).PushFrontList(newList)
-						this.parentList.PushBack(newList)
+
+			//先取头和尾
+			parentHeadList := this.parentList.Front()
+			parentTailList := this.parentList.Back()
+
+			frontOrder := parentHeadList.Value.(*list.List).Front().Value.(Order)
+			backOrder := parentTailList.Value.(*list.List).Front().Value.(Order)
+
+			//升序 卖单
+			if this.sortBy == enum.SortDirectionAsc {
+
+				if order.Price.LessThan(frontOrder.Price) {
+					el := this.parentList.PushFront(newList)
+					this.elementMap[order.Price.String()] = el
+					return
+				}
+
+				if order.Price.GreaterThan(backOrder.Price) {
+					el := this.parentList.PushBack(newList)
+					this.elementMap[order.Price.String()] = el
+					return
+				}
+
+				for el := this.parentList.Front(); el != nil; el = el.Next() {
+					childList := el.Value.(*list.List)
+					childPrice := childList.Front().Value.(Order).Price
+					if order.Price.LessThan(childPrice) {
+						el := this.parentList.InsertBefore(order, el)
+						this.elementMap[order.Price.String()] = el
 						break
 					}
-					continue
-				} else {
-					//降序
-					//如果新订单价格小于订单价格
-					if order.Price.GreaterThan(v.Price) {
-						e.Value.(*list.List).PushFrontList(newList)
-						this.parentList.PushBack(newList)
+				}
+
+			} else {
+				//降序 买单
+				if order.Price.GreaterThan(frontOrder.Price) {
+					el := this.parentList.PushFront(newList)
+					this.elementMap[order.Price.String()] = el
+					return
+				}
+
+				if order.Price.LessThan(backOrder.Price) {
+					el := this.parentList.PushBack(newList)
+					this.elementMap[order.Price.String()] = el
+					return
+				}
+
+				for el := this.parentList.Front(); el != nil; el = el.Next() {
+					childList := el.Value.(*list.List)
+					childPrice := childList.Front().Value.(Order).Price
+					if order.Price.GreaterThan(childPrice) {
+						el := this.parentList.InsertBefore(order, el)
+						this.elementMap[order.Price.String()] = el
+						break
 					}
 				}
 			}
@@ -72,7 +107,10 @@ func (this *orderQueue) addOrder(order Order) {
 	}
 
 	for e := this.parentList.Front(); e != nil; e = e.Next() {
-		fmt.Println(e.Value)
+		for el := e.Value.(*list.List).Front(); el != nil; el = el.Next() {
+			fmt.Println("打印:", el.Value)
+		}
+
 	}
 }
 
