@@ -18,7 +18,7 @@ rabbitmq:
       key: kunkka.exchange.match
       type: direct
     cancel:
-      key: kunkka.cancel
+      key: kunkka.exchange.cancel
       type: direct
   queue:
     match:

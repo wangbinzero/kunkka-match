@@ -7,6 +7,7 @@ import (
 	"kunkka-match/handler"
 	"kunkka-match/log"
 	"kunkka-match/middleware"
+	"kunkka-match/middleware/mq"
 	"kunkka-match/process"
 	"net/http"
 )
@@ -18,6 +19,8 @@ func init() {
 	log.Info(common.Logo)
 	engine.Init()
 	middleware.Init()
+	//mq.InitAmqp()
+	mq.InitEngineMQ()
 	process.Init()
 }
 

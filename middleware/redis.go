@@ -8,6 +8,7 @@ import (
 var RedisClient *redis.Client
 
 func Init() {
+
 	//addr := conf.Gconfig.GetString("redis.addr")
 	RedisClient = redis.NewClient(&redis.Options{
 		Addr:     "127.0.0.1:6379",
