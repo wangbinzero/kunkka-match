@@ -7,5 +7,5 @@ var ChanMap map[string]chan Order
 
 func Init() {
 	ChanMap = make(map[string]chan Order)
-	log.Info("Order channel [ChanMap] init success\n")
+	log.Info("order channel [ChanMap] init success\n")
 }

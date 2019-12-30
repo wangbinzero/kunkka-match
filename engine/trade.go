@@ -62,7 +62,7 @@ func dealCancel(order *Order, book *OrderBook) {
 	//TODO 移除缓存
 
 	//TODO 发送到消息队列
-	log.Info("Engine: [%s],orderId: [%s] cancelResult: %v\n", order.Symbol, order.OrderId, ok)
+	log.Info("engine: [%s],orderId: [%s] cancelResult: %v\n", order.Symbol, order.OrderId, ok)
 }
 
 //撤单逻辑处理
@@ -101,12 +101,12 @@ func dealLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 
 //限价挂单  -- 买单
 func dealBuyLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
-	log.Info("Receive buy limit order: %s\n", order.toJson())
+	log.Info("receive buy limit order: %s\n", order.toJson())
 LOOP:
 	headOrder := book.getHeadSellOrder()
 	if headOrder == (Order{}) || order.Price.LessThan(headOrder.Price) {
 		book.addBuyOrder(*order)
-		log.Info("Engine %s, a order has added to the orderBook: %s\n", order.Symbol, order.toJson())
+		log.Info("engine %s, a order has added to the orderBook: %s\n", order.Symbol, order.toJson())
 	} else {
 		matchTrade(&headOrder, order, book, lastTradePrice)
 		if order.Amount.IsPositive() {
@@ -117,12 +117,12 @@ LOOP:
 
 //限价挂单 -- 卖单
 func dealSellLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
-	log.Info("Receive sell limit order: %s", order.toJson())
+	log.Info("receive sell limit order: %s", order.toJson())
 LOOP:
 	headOrder := book.getHeadBuyOrder()
 	if headOrder == (Order{}) || order.Price.GreaterThan(headOrder.Price) {
 		book.addSellOrder(*order)
-		log.Info("Engine %s, a order added to the orderBook: %s\n", order.Symbol, order.toJson())
+		log.Info("engine %s, a order added to the orderBook: %s\n", order.Symbol, order.toJson())
 	} else {
 		matchTrade(&headOrder, order, book, lastTradePrice)
 		if order.Amount.IsPositive() {

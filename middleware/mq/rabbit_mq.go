@@ -3,6 +3,7 @@ package mq
 import (
 	"fmt"
 	"github.com/streadway/amqp"
+	"kunkka-match/conf"
 	"kunkka-match/log"
 	"sync"
 	"time"
@@ -57,6 +58,7 @@ func (r *RabbitMq) connect() {
 		log.Info("open channel failed: %v\n", err.Error())
 		return
 	}
+	declareExchange()
 }
 
 func (r *RabbitMq) close() {
@@ -88,7 +90,7 @@ func (r *RabbitMq) Start() {
 	}
 
 	for _, receiver := range r.receiverList {
-		go r.listenReceiver(receiver)
+		r.listenReceiver(receiver)
 	}
 	time.Sleep(1 * time.Second)
 }
@@ -151,7 +153,6 @@ func (r *RabbitMq) listenProducer(producer Producer) {
 
 func (r *RabbitMq) listenReceiver(receiver Receiver) {
 	//defer r.close()
-
 	if r.channel == nil {
 		r.connect()
 	}
@@ -179,6 +180,7 @@ func (r *RabbitMq) listenReceiver(receiver Receiver) {
 	}
 
 	for msg := range msgList {
+		fmt.Println("for 循环")
 		err := receiver.Consumer(msg.Body)
 		if err != nil {
 			err = msg.Ack(true)
@@ -195,4 +197,65 @@ func (r *RabbitMq) listenReceiver(receiver Receiver) {
 			return
 		}
 	}
+}
+
+// declare amqp exchange
+func declareExchange() {
+	matchEx := conf.Gconfig.GetString("rabbitmq.exchange.match.key")
+	matchExType := conf.Gconfig.GetString("rabbitmq.exchange.match.type")
+
+	//declare match exchange
+	err := mqChan.ExchangeDeclare(matchEx, matchExType,
+		true,
+		false,
+		false,
+		false,
+		nil)
+
+	if err != nil {
+		log.Error("declare exchange [%s] error: %v\n", matchEx, err.Error())
+		return
+	}
+
+	cancelEx := conf.Gconfig.GetString("rabbitmq.exchange.cancel.key")
+	cancelExType := conf.Gconfig.GetString("rabbitmq.exchange.cancel.type")
+
+	//declare cancel exchange
+	err = mqChan.ExchangeDeclare(cancelEx, cancelExType,
+		true,
+		false,
+		false,
+		false,
+		nil)
+
+	if err != nil {
+		log.Error("declare exchange [%s] error: %v\n", cancelEx, err.Error())
+		return
+	}
+	declareQueue()
+}
+
+//declare queue
+func declareQueue() {
+	var err error
+	matchQueue := conf.Gconfig.GetString("rabbitmq.queue.match.key")
+	cancelQueue := conf.Gconfig.GetString("rabbitmq.queue.cancel.key")
+	_, err = mqChan.QueueDeclare(matchQueue, true, false, false, false, nil)
+	if err != nil {
+		log.Error("declare queue [%s] error: %v\n", matchQueue, err.Error())
+		return
+	}
+
+	_, err = mqChan.QueueDeclare(cancelQueue, true, false, false, false, nil)
+	if err != nil {
+		log.Error("declare queue [%s] error: %v\n", cancelQueue, err.Error())
+		return
+	}
+
+	bindQueue(matchQueue, cancelQueue)
+}
+
+func bindQueue(matchQueue, cancelQueue string) {
+	mqChan.QueueBind(matchQueue, "match", conf.Gconfig.GetString("rabbitmq.exchange.match.key"), false, nil)
+	mqChan.QueueBind(cancelQueue, "cancel", conf.Gconfig.GetString("rabbitmq.exchange.cancel.key"), false, nil)
 }

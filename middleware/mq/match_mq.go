@@ -21,9 +21,9 @@ func InitEngineMQ() {
 	te := &Msg{Content: msg}
 
 	queueExchange := &QueueExchange{
-		QueueName:    "test.rabbit",
-		RouteKey:     "rabbit.key",
-		ExchangeName: "test.rabbit.mq",
+		QueueName:    "kunkka.queue.match",
+		RouteKey:     "match",
+		ExchangeName: "kunkka.exchange.match",
 		ExchangeType: "direct",
 	}
 

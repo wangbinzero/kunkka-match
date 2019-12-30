@@ -13,11 +13,11 @@ func Run(symbol string, price decimal.Decimal) {
 	book := &OrderBook{}
 	//初始化订单簿
 	book.init()
-	log.Info("Engine [%s] startup success\n", symbol)
+	log.Info("engine [%s] startup success\n", symbol)
 	for {
 		order, ok := <-ChanMap[symbol]
 		if !ok {
-			log.Info("Engine [%s] is not running\n", symbol)
+			log.Info("engine [%s] is not running\n", symbol)
 			delete(ChanMap, symbol)
 			cache.RemoveSymbol(symbol)
 			cache.RemovePrice(symbol)

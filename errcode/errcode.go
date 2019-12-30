@@ -5,10 +5,10 @@ import "encoding/json"
 type ErrorCode string
 
 var (
-	BlankSymbol    ErrorCode = "Blank symbol"
-	InvalidPrice   ErrorCode = "Invalid price"
-	EngineExist    ErrorCode = "Engine already exist"
-	EngineNotFound ErrorCode = "Engine not exist"
+	BlankSymbol    ErrorCode = "blank symbol"
+	InvalidPrice   ErrorCode = "invalid price"
+	EngineExist    ErrorCode = "engine already exist"
+	EngineNotFound ErrorCode = "engine not exist"
 	OK             ErrorCode = "ok"
 )
 
