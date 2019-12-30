@@ -1,6 +1,7 @@
 package mq
 
 import (
+	"fmt"
 	"github.com/go-redis/redis"
 	"github.com/streadway/amqp"
 	"kunkka-match/common"
@@ -161,4 +162,18 @@ func PublishMessage(exchange, routeKey, contentType string, message *[]byte, del
 	}
 
 	log.Info("publish message success\n")
+}
+
+func Receive() {
+	channel, err := AmqpConnect.Channel()
+	if err != nil {
+		fmt.Println("channel non")
+		return
+	}
+
+	msgList, err := channel.Consume("kunkka.queue.match", "", false, false, false, false, nil)
+
+	for msg := range msgList {
+		fmt.Println(string(msg.Body))
+	}
 }

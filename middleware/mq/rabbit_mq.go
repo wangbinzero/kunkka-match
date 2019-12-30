@@ -46,29 +46,28 @@ func (r *RabbitMq) connect() {
 	url := fmt.Sprintf("amqp://%s:%s@%s:%d/", "guest", "guest", "127.0.0.1", 5672)
 	conn, err := amqp.Dial(url)
 	if err != nil {
-		log.Error("connect to amqp failed: %v\n", err.Error())
+		log.Info("connect to amqp failed: %v\n", err.Error())
 		return
 	}
 
 	r.connection = conn
 	mqChan, err = conn.Channel()
+	r.channel = mqChan
 	if err != nil {
-		log.Error("open channel failed: %v\n", err.Error())
+		log.Info("open channel failed: %v\n", err.Error())
 		return
 	}
-	r.channel = mqChan
-
 }
 
 func (r *RabbitMq) close() {
 	err := r.channel.Close()
 	if err != nil {
-		log.Error("close channel failed: %v\n", err.Error())
+		log.Info("close channel failed: %v\n", err.Error())
 		return
 	}
 	err = r.connection.Close()
 	if err != nil {
-		log.Error("close amqp connection failed: %v\n", err.Error())
+		log.Info("close amqp connection failed: %v\n", err.Error())
 		return
 	}
 }
@@ -116,14 +115,14 @@ func (r *RabbitMq) listenProducer(producer Producer) {
 		//队列不存在，声明
 		_, err = r.channel.QueueDeclare(r.queue, true, false, false, true, nil)
 		if err != nil {
-			log.Error("declare queue [%s] error: %v\n", r.queue, err.Error())
+			log.Info("declare queue [%s] error: %v\n", r.queue, err.Error())
 			return
 		}
 	}
 
 	err = r.channel.QueueBind(r.queue, r.routeKey, r.exchange, true, nil)
 	if err != nil {
-		log.Error("queue [%s] bind error: %v\n", r.queue, err.Error())
+		log.Info("queue [%s] bind error: %v\n", r.queue, err.Error())
 		return
 	}
 
@@ -132,7 +131,7 @@ func (r *RabbitMq) listenProducer(producer Producer) {
 	if err != nil {
 		err = r.channel.ExchangeDeclare(r.exchange, r.exchangeType, true, false, false, true, nil)
 		if err != nil {
-			log.Error("declare exchange [%s] error: %v\n", r.exchange, err.Error())
+			log.Info("declare exchange [%s] error: %v\n", r.exchange, err.Error())
 			return
 		}
 	}
@@ -144,14 +143,14 @@ func (r *RabbitMq) listenProducer(producer Producer) {
 	})
 
 	if err != nil {
-		log.Error("mq publish message failed: %v\n", err.Error())
+		log.Info("mq publish message failed: %v\n", err.Error())
 		return
 	}
 
 }
 
 func (r *RabbitMq) listenReceiver(receiver Receiver) {
-	defer r.close()
+	//defer r.close()
 
 	if r.channel == nil {
 		r.connect()
@@ -162,20 +161,20 @@ func (r *RabbitMq) listenReceiver(receiver Receiver) {
 	if err != nil {
 		_, err = r.channel.QueueDeclare(r.queue, true, false, false, true, nil)
 		if err != nil {
-			log.Error("declare queue [%s] error: %v\n", r.queue, err.Error())
+			log.Info("declare queue [%s] error: %v\n", r.queue, err.Error())
 			return
 		}
 	}
 
 	err = r.channel.QueueBind(r.queue, r.routeKey, r.exchange, true, nil)
 	if err != nil {
-		log.Error("queue [%s] bind error: %v\n", r.queue, err.Error())
+		log.Info("queue [%s] bind error: %v\n", r.queue, err.Error())
 		return
 	}
 	err = r.channel.Qos(1, 0, true)
 	msgList, err := r.channel.Consume(r.queue, "", false, false, false, false, nil)
 	if err != nil {
-		log.Error("receive message error: %v\n", err.Error())
+		log.Info("receive message error: %v\n", err.Error())
 		return
 	}
 
@@ -184,13 +183,13 @@ func (r *RabbitMq) listenReceiver(receiver Receiver) {
 		if err != nil {
 			err = msg.Ack(true)
 			if err != nil {
-				log.Error("confirm message error: %v\n", err.Error())
+				log.Info("confirm message error: %v\n", err.Error())
 				return
 			}
 		} else {
 			err = msg.Ack(false)
 			if err != nil {
-				log.Error("confirm message error: %v\n", err.Error())
+				log.Info("confirm message error: %v\n", err.Error())
 				return
 			}
 			return
