@@ -174,7 +174,8 @@ func Info(format string, v ...interface{}) {
 	//_, file, line, _ := runtime.Caller(1)
 	if fileLogger.logLevel <= INFO {
 		//fileLogger.logChan <- fmt.Sprintf("[%v:%v]", filepath.Base(file), line) + fmt.Sprintf("[INFO]"+format, v...)
-		fileLogger.logChan <- fmt.Sprintf("[INFO]"+format, v...)
+		//fileLogger.logChan <- fmt.Sprintf("[INFO]"+format, v...)
+		fmt.Println(fmt.Sprintf("[INFO]"+format, v...))
 	}
 }
 
@@ -184,7 +185,6 @@ func Error(format string, v ...interface{}) {
 		//文件行号+日志级别
 		//fileLogger.logChan <- fmt.Sprintf("[%v:%v]", filepath.Base(file), line) + fmt.Sprintf("[INFO]"+format, v...)
 		fileLogger.logChan <- fmt.Sprintf("[INFO]"+format, v...)
-
 	}
 }
 

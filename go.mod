@@ -8,4 +8,5 @@ require (
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/shopspring/decimal v0.0.0-20191130220710-360f2bc03045
 	github.com/spf13/viper v1.6.1
+	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
 )

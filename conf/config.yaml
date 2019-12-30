@@ -7,3 +7,21 @@ log:
   level: debug
 redis:
   addr: 127.0.0.1:6379
+rabbitmq:
+  host: 127.0.0.1
+  port: 5672
+  username: guest
+  password: guest
+  vhost: /
+  exchange:
+    match:
+      key: kunkka.exchange.match
+      type: direct
+    cancel:
+      key: kunkka.cancel
+      type: direct
+  queue:
+    match:
+      key: kunkka.queue.match
+    cancel:
+      key: kunkka.queue.cancel
