@@ -9,6 +9,8 @@ var (
 	InvalidPrice   ErrorCode = "invalid price"
 	EngineExist    ErrorCode = "engine already exist"
 	EngineNotFound ErrorCode = "engine not exist"
+	OrderExist     ErrorCode = "order exist"
+	OrderNotFound  ErrorCode = "order not found"
 	OK             ErrorCode = "ok"
 )
 

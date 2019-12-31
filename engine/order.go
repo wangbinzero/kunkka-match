@@ -37,3 +37,12 @@ func (this *Order) FromMap(data map[string]string) {
 	this.Timestamp = common.Wrap(s, 10)
 	this.Action = enum.OrderAction(data["action"])
 }
+
+func (this *Order) ToMap() map[string]interface{} {
+	var orderMap = make(map[string]interface{})
+	orderMap["symbol"] = this.Symbol
+	orderMap["orderId"] = this.OrderId
+	orderMap["timestamp"] = common.Unwrap(this.Timestamp, 64)
+	orderMap["action"] = this.Action.String()
+	return orderMap
+}

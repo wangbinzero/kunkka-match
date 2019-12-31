@@ -91,6 +91,6 @@ func RemoveOrder(symbol, orderId string) {
 }
 
 // 判断缓存中是否存在订单
-func OrderExist(symbol, orderId string) bool {
-	return middleware.RedisClient.HExists(common.OrderKey+symbol+":"+orderId, "symbol").Val()
+func OrderExist(symbol, orderId, action string) bool {
+	return middleware.RedisClient.HExists(common.OrderKey+symbol+":"+orderId+":"+action, "symbol").Val()
 }

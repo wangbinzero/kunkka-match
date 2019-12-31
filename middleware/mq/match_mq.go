@@ -1,6 +1,10 @@
 package mq
 
-import "fmt"
+import (
+	"encoding/json"
+	"kunkka-match/engine"
+	"kunkka-match/process"
+)
 
 type Msg struct {
 	Content string
@@ -10,15 +14,19 @@ func (m *Msg) MessageContent() string {
 	return m.Content
 }
 
+// 消费消息队列
 func (m *Msg) Consumer(data []byte) error {
-	fmt.Println("AMQP 消费消息")
-	fmt.Println("Amqp receive message: ", string(data))
+
+	var order engine.Order
+	err := json.Unmarshal(data, &order)
+	if err != nil {
+		return err
+	}
+	process.Dispatch(order)
 	return nil
 }
 
 func InitEngineMQ() {
-	//msg := fmt.Sprintf("This is test message")
-
 	te := &Msg{}
 
 	queueExchange := &QueueExchange{
