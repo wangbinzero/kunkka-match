@@ -72,7 +72,7 @@ func cancelOrder(order *Order, book *OrderBook) {
 
 // 创建订单
 func dealCreate(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
-	switch order.Type {
+	switch order.OrderType {
 	case enum.Limit:
 		dealLimit(order, book, lastTradePrice)
 	case enum.LimitIoc:
@@ -101,8 +101,6 @@ func dealLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 
 //限价挂单  -- 买单
 func dealBuyLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
-	log.Info("receive buy limit order: %s\n", order.toJson())
-	log.Info("order book: buy queue - %v sell queue - %v\n  ", book.buyOrderQueue, book.sellOrderQueue)
 LOOP:
 	headOrder := book.getHeadSellOrder()
 	if headOrder == (Order{}) || order.Price.LessThan(headOrder.Price) {
