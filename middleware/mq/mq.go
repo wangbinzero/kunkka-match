@@ -1,6 +1,7 @@
 package mq
 
 import (
+	"fmt"
 	"github.com/go-redis/redis"
 	"github.com/streadway/amqp"
 	"kunkka-match/common"
@@ -36,12 +37,12 @@ func SendTrade(symbol string, trade map[string]interface{}) {
 	middleware.RedisClient.XAdd(a)
 }
 
-//func ConsumerStream(stream string) {
-//	fmt.Println("消费 stream: ",stream)
-//	for msg := range middleware.RedisClient.XReadStreams(stream).Val() {
-//		fmt.Println("哈哈哈哈 stream: ", msg)
-//	}
-//}
+func ConsumerStream(stream string) {
+	fmt.Println("消费 stream: ", stream)
+	for msg := range middleware.RedisClient.XReadStreams(stream).Val() {
+		fmt.Println("哈哈哈哈 stream: ", msg)
+	}
+}
 
 func InitAmqp() {
 	var err error
@@ -64,30 +65,30 @@ func InitAmqp() {
 
 // pubish message to amqp server
 // deliveryMode =1  non persistent  2 persistent
-//func PublishMessage(exchange, routeKey, contentType string, message *[]byte, deliveryMode uint8) {
-//	channel, err := AmqpConnect.Channel()
-//	defer channel.Close()
-//	if err != nil {
-//		log.Error("can't get a channel from connection for publish message: %v\n", err.Error())
-//		return
-//	}
-//	if err = channel.Publish(
-//		exchange,
-//		routeKey,
-//		false,
-//		false,
-//		amqp.Publishing{
-//			Headers:         amqp.Table{},
-//			ContentType:     contentType,
-//			ContentEncoding: "",
-//			DeliveryMode:    deliveryMode,
-//			Priority:        0,
-//			Body:            *message,
-//		},
-//	); err != nil {
-//		log.Error("publish message failed: %v\n", err.Error())
-//		return
-//	}
-//
-//	log.Info("publish message success\n")
-//}
+func PublishMessage(exchange, routeKey, contentType string, message *[]byte, deliveryMode uint8) {
+	channel, err := AmqpConnect.Channel()
+	defer channel.Close()
+	if err != nil {
+		log.Error("can't get a channel from connection for publish message: %v\n", err.Error())
+		return
+	}
+	if err = channel.Publish(
+		exchange,
+		routeKey,
+		false,
+		false,
+		amqp.Publishing{
+			Headers:         amqp.Table{},
+			ContentType:     contentType,
+			ContentEncoding: "",
+			DeliveryMode:    deliveryMode,
+			Priority:        0,
+			Body:            *message,
+		},
+	); err != nil {
+		log.Error("publish message failed: %v\n", err.Error())
+		return
+	}
+
+	log.Info("publish message success\n")
+}

@@ -14,10 +14,12 @@ var (
 	mqChan *amqp.Channel
 )
 
+//生产者接口
 type Producer interface {
 	MessageContent() string
 }
 
+//消费者接口
 type Receiver interface {
 	Consumer([]byte) error
 }
@@ -90,7 +92,7 @@ func (r *RabbitMq) Start() {
 	}
 
 	for _, receiver := range r.receiverList {
-		r.listenReceiver(receiver)
+		go r.listenReceiver(receiver)
 	}
 	time.Sleep(1 * time.Second)
 }
@@ -140,8 +142,9 @@ func (r *RabbitMq) listenProducer(producer Producer) {
 
 	//开始发送消息
 	err = r.channel.Publish(r.exchange, r.routeKey, false, false, amqp.Publishing{
-		ContentType: "text/plain",
-		Body:        []byte(producer.MessageContent()),
+		ContentType:  "text/plain",
+		Body:         []byte(producer.MessageContent()),
+		DeliveryMode: 2,
 	})
 
 	if err != nil {
@@ -152,7 +155,7 @@ func (r *RabbitMq) listenProducer(producer Producer) {
 }
 
 func (r *RabbitMq) listenReceiver(receiver Receiver) {
-	//defer r.close()
+	defer r.close()
 	if r.channel == nil {
 		r.connect()
 	}
@@ -178,9 +181,8 @@ func (r *RabbitMq) listenReceiver(receiver Receiver) {
 		log.Info("receive message error: %v\n", err.Error())
 		return
 	}
-
-	for msg := range msgList {
-		fmt.Println("for 循环")
+	for {
+		msg := <-msgList
 		err := receiver.Consumer(msg.Body)
 		if err != nil {
 			err = msg.Ack(true)
@@ -194,7 +196,6 @@ func (r *RabbitMq) listenReceiver(receiver Receiver) {
 				log.Info("confirm message error: %v\n", err.Error())
 				return
 			}
-			return
 		}
 	}
 }
