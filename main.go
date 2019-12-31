@@ -19,9 +19,10 @@ func init() {
 	log.Info(common.Logo)
 	engine.Init()
 	middleware.Init()
+	process.Init()
 	//mq.InitAmqp()
 	mq.InitEngineMQ()
-	process.Init()
+
 }
 
 func main() {

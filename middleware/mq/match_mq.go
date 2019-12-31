@@ -3,6 +3,8 @@ package mq
 import (
 	"encoding/json"
 	"kunkka-match/engine"
+	"kunkka-match/errcode"
+	"kunkka-match/log"
 	"kunkka-match/process"
 )
 
@@ -22,7 +24,10 @@ func (m *Msg) Consumer(data []byte) error {
 	if err != nil {
 		return err
 	}
-	process.Dispatch(order)
+	errco := process.Dispatch(order)
+	if errco.String() != errcode.OK.String() {
+		log.Error("consume order error: %s\n", errco.String())
+	}
 	return nil
 }
 

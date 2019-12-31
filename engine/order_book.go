@@ -1,6 +1,9 @@
 package engine
 
-import "kunkka-match/enum"
+import (
+	"kunkka-match/enum"
+	"kunkka-match/log"
+)
 
 type OrderBook struct {
 	buyOrderQueue  *orderQueue //买单队列
@@ -20,6 +23,7 @@ func (this *OrderBook) init() {
 
 	this.sellOrderQueue = sellOrderQueue
 	this.buyOrderQueue = buyOrderQueue
+	log.Info("order book init success\n")
 }
 
 //向订单簿添加买单

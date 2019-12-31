@@ -108,7 +108,12 @@ func (this *orderQueue) addOrder(order Order) {
 
 // 读取头部订单
 func (this *orderQueue) getHeadOrder() Order {
-	return this.parentList.Front().Value.(*list.List).Front().Value.(Order)
+	el := this.parentList.Front()
+	if el == nil {
+		return Order{}
+	} else {
+		return el.Value.(*list.List).Front().Value.(Order)
+	}
 }
 
 // 读取并删除头部订单

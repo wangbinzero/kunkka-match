@@ -8,7 +8,7 @@ var (
 	BlankSymbol    ErrorCode = "blank symbol"
 	InvalidPrice   ErrorCode = "invalid price"
 	EngineExist    ErrorCode = "engine already exist"
-	EngineNotFound ErrorCode = "engine not exist"
+	EngineNotFound ErrorCode = "engine not found"
 	OrderExist     ErrorCode = "order exist"
 	OrderNotFound  ErrorCode = "order not found"
 	OK             ErrorCode = "ok"
@@ -29,7 +29,19 @@ func (this ErrorCode) IsOk() bool {
 func (this ErrorCode) String() string {
 	switch this {
 	case BlankSymbol:
-		return "交易标的不能为空"
+		return "blank symbol"
+	case InvalidPrice:
+		return "invalid price"
+	case EngineExist:
+		return "engine already exist"
+	case EngineNotFound:
+		return "engine not found"
+	case OrderExist:
+		return "order exist"
+	case OrderNotFound:
+		return "order not found"
+	case OK:
+		return "ok"
 	default:
 		return "unknown"
 	}

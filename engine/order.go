@@ -44,5 +44,6 @@ func (this *Order) ToMap() map[string]interface{} {
 	orderMap["orderId"] = this.OrderId
 	orderMap["timestamp"] = common.Unwrap(this.Timestamp, 64)
 	orderMap["action"] = this.Action.String()
+	orderMap["price"] = this.Price.String()
 	return orderMap
 }

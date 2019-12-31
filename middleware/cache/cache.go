@@ -74,10 +74,8 @@ func GetOrderIdsWithAction(symbol string) []string {
 }
 
 func GetOrder(symbol, orderId string) map[string]string {
-
-	// hgetall  查询redis所有 值
 	res := middleware.RedisClient.HGetAll(common.OrderKey + symbol + ":" + orderId).Val()
-	fmt.Println("查询订单: ", res)
+	fmt.Println("load order", res)
 	return res
 }
 
