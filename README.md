@@ -29,12 +29,22 @@ windows
 GOOS=windows GOARCH=amd64 go build main.go
 ```
 
-### 开启交易标的
+### 开启交易标的引擎
 POST http://127.0.0.1:8080/openMatching
 ```json
 {
 	"symbol":"btcusdt",  //交易标的
 	"price":7200         //开盘价
+}
+```
+
+### 关闭交易标的引擎
+POST http://127.0.0.1:8080/closeMatching
+
+```json
+
+{
+   "symbol":["btcusdt","ethusdt"]
 }
 ```
 
