@@ -63,6 +63,7 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 			book.addBuyOrder(*order)
 			break
 		}
+
 		cache.SaveOrder(order.ToMap())
 		cache.SavePrice(order.Symbol, currenDealPrice.String())
 		//TODO 交易标的最新价是在此处存如缓存吗
