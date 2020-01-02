@@ -27,6 +27,19 @@ func (this Trade) toJson() string {
 //成交撮合
 //做数量减法即可
 func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice decimal.Decimal) *Order {
+	//上一笔最新成交价
+	pPrice := cache.GetPrice(order.Symbol)
+	var buyPrice decimal.Decimal
+	var sellPrice decimal.Decimal
+
+	if order.Side == enum.SideBuy {
+		buyPrice, sellPrice = order.Price, headOrder.Price
+	} else {
+		buyPrice, sellPrice = headOrder.Price, order.Price
+	}
+
+	//计算最新价
+	currenDealPrice := newDealPrice(pPrice, buyPrice, sellPrice)
 	result := order.Amount.Sub(headOrder.Amount)
 	order.Amount = result
 	// result > 0 表示订单部分成交 对手单完全成交
@@ -51,7 +64,7 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 			break
 		}
 		cache.SaveOrder(order.ToMap())
-
+		cache.SavePrice(order.Symbol, currenDealPrice.String())
 		//TODO 交易标的最新价是在此处存如缓存吗
 	} else if result.Cmp(decimal.Zero) < 0 {
 
@@ -140,6 +153,9 @@ func dealLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 func dealBuyLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 LOOP:
 	headOrder := book.getHeadSellOrder()
+
+	//如果限价买单为空 或者 价格小于卖单，则加入买单簿，不进行撮合
+	//否则进行撮合逻辑处理
 	if headOrder == (Order{}) || order.Price.LessThan(headOrder.Price) {
 		book.addBuyOrder(*order)
 		log.Info("撮合引擎 %s, 添加订单簿数据,买单: %s\n", order.Symbol, order.toJson())
@@ -171,4 +187,16 @@ LOOP:
 			goto LOOP
 		}
 	}
+}
+
+//计算最新成交价
+func newDealPrice(prevDealPrice, buyPrice, sellPrice decimal.Decimal) decimal.Decimal {
+	if prevDealPrice.GreaterThanOrEqual(buyPrice) {
+		return buyPrice
+	} else if prevDealPrice.LessThanOrEqual(sellPrice) {
+		return sellPrice
+	} else if buyPrice.GreaterThan(prevDealPrice) && prevDealPrice.GreaterThan(sellPrice) {
+		return prevDealPrice
+	}
+	return prevDealPrice
 }
