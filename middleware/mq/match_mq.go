@@ -26,7 +26,7 @@ func (m *Msg) Consumer(data []byte) error {
 	}
 	errco := process.Dispatch(order)
 	if errco.String() != errcode.OK.String() {
-		log.Error("consume order error: %s\n", errco.String())
+		log.Error("消费订单消息失败: %s\n", errco.String())
 	}
 	return nil
 }

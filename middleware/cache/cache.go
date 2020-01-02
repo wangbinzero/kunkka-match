@@ -1,10 +1,10 @@
 package cache
 
 import (
-	"fmt"
 	"github.com/go-redis/redis"
 	"github.com/shopspring/decimal"
 	"kunkka-match/common"
+	"kunkka-match/log"
 	"kunkka-match/middleware"
 )
 
@@ -75,7 +75,7 @@ func GetOrderIdsWithAction(symbol string) []string {
 
 func GetOrder(symbol, orderId string) map[string]string {
 	res := middleware.RedisClient.HGetAll(common.OrderKey + symbol + ":" + orderId).Val()
-	fmt.Println("load order", res)
+	log.Info("缓存加载订单: 交易标的 [%s] 订单 %v\n", symbol, res)
 	return res
 }
 

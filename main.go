@@ -32,7 +32,7 @@ func main() {
 	mux.HandleFunc("/handleOrder", handler.HandleOrder)
 
 	port := conf.Gconfig.GetString("server.port")
-	log.Info("Server port: %s\n", port)
+	log.Info("服务端口: %s\n", port)
 	http.ListenAndServe(port, mux)
 
 }

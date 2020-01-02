@@ -49,7 +49,7 @@ func (r *RabbitMq) connect() {
 	url := fmt.Sprintf("amqp://%s:%s@%s:%d/", "guest", "guest", "127.0.0.1", 5672)
 	conn, err := amqp.Dial(url)
 	if err != nil {
-		log.Info("connect to amqp failed: %v\n", err.Error())
+		log.Info("消息队列连接失败: %v\n", err.Error())
 		return
 	}
 
@@ -57,7 +57,7 @@ func (r *RabbitMq) connect() {
 	mqChan, err = conn.Channel()
 	r.channel = mqChan
 	if err != nil {
-		log.Info("open channel failed: %v\n", err.Error())
+		log.Info("消息队列打开channel失败: %v\n", err.Error())
 		return
 	}
 	declareExchange()
@@ -165,20 +165,20 @@ func (r *RabbitMq) listenReceiver(receiver Receiver) {
 	if err != nil {
 		_, err = r.channel.QueueDeclare(r.queue, true, false, false, true, nil)
 		if err != nil {
-			log.Info("declare queue [%s] error: %v\n", r.queue, err.Error())
+			log.Info("声明队列 [%s] 失败: %v\n", r.queue, err.Error())
 			return
 		}
 	}
 
 	err = r.channel.QueueBind(r.queue, r.routeKey, r.exchange, true, nil)
 	if err != nil {
-		log.Info("queue [%s] bind error: %v\n", r.queue, err.Error())
+		log.Info("队列 [%s] 绑定失败: %v\n", r.queue, err.Error())
 		return
 	}
 	err = r.channel.Qos(1, 0, true)
 	msgList, err := r.channel.Consume(r.queue, "", false, false, false, false, nil)
 	if err != nil {
-		log.Info("receive message error: %v\n", err.Error())
+		log.Info("消费消息失败: %v\n", err.Error())
 		return
 	}
 	for {
@@ -187,13 +187,13 @@ func (r *RabbitMq) listenReceiver(receiver Receiver) {
 		if err != nil {
 			err = msg.Ack(true)
 			if err != nil {
-				log.Info("confirm message error: %v\n", err.Error())
+				log.Info("消息确认失败: %v\n", err.Error())
 				return
 			}
 		} else {
 			err = msg.Ack(false)
 			if err != nil {
-				log.Info("confirm message error: %v\n", err.Error())
+				log.Info("消息确认失败: %v\n", err.Error())
 				return
 			}
 		}
@@ -214,7 +214,7 @@ func declareExchange() {
 		nil)
 
 	if err != nil {
-		log.Error("declare exchange [%s] error: %v\n", matchEx, err.Error())
+		log.Error("声明交换机 [%s] 失败: %v\n", matchEx, err.Error())
 		return
 	}
 
@@ -230,7 +230,7 @@ func declareExchange() {
 		nil)
 
 	if err != nil {
-		log.Error("declare exchange [%s] error: %v\n", cancelEx, err.Error())
+		log.Error("声明交换机 [%s] 失败: %v\n", cancelEx, err.Error())
 		return
 	}
 	declareQueue()
@@ -243,13 +243,13 @@ func declareQueue() {
 	cancelQueue := conf.Gconfig.GetString("rabbitmq.queue.cancel.key")
 	_, err = mqChan.QueueDeclare(matchQueue, true, false, false, false, nil)
 	if err != nil {
-		log.Error("declare queue [%s] error: %v\n", matchQueue, err.Error())
+		log.Error("声明队列 [%s] 失败: %v\n", matchQueue, err.Error())
 		return
 	}
 
 	_, err = mqChan.QueueDeclare(cancelQueue, true, false, false, false, nil)
 	if err != nil {
-		log.Error("declare queue [%s] error: %v\n", cancelQueue, err.Error())
+		log.Error("声明队列 [%s] 失败: %v\n", cancelQueue, err.Error())
 		return
 	}
 

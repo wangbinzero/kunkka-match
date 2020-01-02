@@ -12,11 +12,11 @@ func Run(symbol string, price decimal.Decimal) {
 	lastTradePrice := price
 	book := &OrderBook{}
 	book.init()
-	log.Info("engine [%s] startup success\n", symbol)
+	log.Info("撮合引擎 [%s] 启动成功\n", symbol)
 	for {
 		order, ok := <-ChanMap[symbol]
 		if !ok {
-			log.Info("engine [%s] is not running\n", symbol)
+			log.Info("撮合引擎 [%s] 未开启\n", symbol)
 			delete(ChanMap, symbol)
 			cache.RemoveSymbol(symbol)
 			cache.RemovePrice(symbol)

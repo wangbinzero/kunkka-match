@@ -2,7 +2,6 @@ package engine
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/shopspring/decimal"
 	"kunkka-match/enum"
 	"kunkka-match/log"
@@ -34,10 +33,11 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 	trade.Timestamp = time.Now().UnixNano() / 1e3
 	result := order.Amount.Sub(headOrder.Amount)
 	order.Amount = result
-	if result.Cmp(decimal.Zero) >= 0 {
+	if result.Cmp(decimal.Zero) == 0 {
 		if headOrder.Side == enum.SideBuy {
 
 			book.removeBuyOrder(headOrder)
+
 		} else if headOrder.Side == enum.SideSell {
 			book.removeSellOrder(headOrder)
 		}
@@ -63,7 +63,7 @@ func dealCancel(order *Order, book *OrderBook) {
 	//TODO 移除缓存
 
 	//TODO 发送到消息队列
-	log.Info("engine: [%s],orderId: [%s] cancelResult: %v\n", order.Symbol, order.OrderId, ok)
+	log.Info("撮合引擎: [%s],订单ID: [%s] 撤单结果: %v\n", order.Symbol, order.OrderId, ok)
 }
 
 //撤单逻辑处理
@@ -130,8 +130,9 @@ LOOP:
 	headOrder := book.getHeadSellOrder()
 	if headOrder == (Order{}) || order.Price.LessThan(headOrder.Price) {
 		book.addBuyOrder(*order)
-		log.Info("engine %s, a order has added to the orderBook: %s\n", order.Symbol, order.toJson())
+		log.Info("撮合引擎 %s, 添加订单簿数据,买单: %s\n", order.Symbol, order.toJson())
 	} else {
+		log.Info("撮合引擎 %s,开始撮合\n", order.Symbol)
 		matchTrade(&headOrder, order, book, lastTradePrice)
 		if order.Amount.IsPositive() {
 			goto LOOP
@@ -141,15 +142,14 @@ LOOP:
 
 //限价挂单 -- 卖单
 func dealSellLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
-	log.Info("receive sell limit order: %s", order.toJson())
+	log.Info("限价卖单: %s\n", order.toJson())
 LOOP:
 	headOrder := book.getHeadBuyOrder()
 	if headOrder == (Order{}) || order.Price.GreaterThan(headOrder.Price) {
-		fmt.Println("加入卖单队列")
 		book.addSellOrder(*order)
-		log.Info("engine %s, a order added to the orderBook: %s\n", order.Symbol, order.toJson())
+		log.Info("撮合引擎 %s, 添加订单簿数据,卖单: %s\n", order.Symbol, order.toJson())
 	} else {
-		fmt.Println("开始撮合")
+		log.Info("撮合引擎 %s,开始撮合\n", order.Symbol)
 		matchTrade(&headOrder, order, book, lastTradePrice)
 		if order.Amount.IsPositive() {
 			goto LOOP

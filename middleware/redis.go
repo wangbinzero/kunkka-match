@@ -17,9 +17,9 @@ func Init() {
 	})
 	_, err := RedisClient.Ping().Result()
 	if err != nil {
-		log.Error("Connection redis error: %v\n", err.Error())
+		log.Error("缓存服务redis连接错误: %v\n", err.Error())
 		panic(err)
 	} else {
-		log.Info("Connection redis[%v] success \n", RedisClient.Options().Addr)
+		log.Info("缓存服务redis [%v] 连接成功 \n", RedisClient.Options().Addr)
 	}
 }

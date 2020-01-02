@@ -23,7 +23,7 @@ func (this *OrderBook) init() {
 
 	this.sellOrderQueue = sellOrderQueue
 	this.buyOrderQueue = buyOrderQueue
-	log.Info("order book init success\n")
+	log.Info("订单簿初始化成功\n")
 }
 
 //向订单簿添加买单
