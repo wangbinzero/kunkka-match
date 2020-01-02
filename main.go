@@ -20,7 +20,6 @@ func init() {
 	engine.Init()
 	middleware.Init()
 	process.Init()
-	//mq.InitAmqp()
 	mq.InitEngineMQ()
 
 }

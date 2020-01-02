@@ -6,6 +6,39 @@
 高性能撮合引擎
 
 
+### 中间件支持
+
+- rabbitmq
+- redis
+
+### 运行
+
+```bash
+go run main.go
+```
+### 编译&运行
+
+linux
+```bash
+GOOS=linux GOARCH=amd64 go build main.go
+
+./main
+```
+
+windows
+```bash
+GOOS=windows GOARCH=amd64 go build main.go
+```
+
+### 开启交易标的
+POST http://127.0.0.1:8080/openMatching
+```json
+{
+	"symbol":"btcusdt",  //交易标的
+	"price":7200  //开盘价
+}
+```
+
 
 
 ```bash
