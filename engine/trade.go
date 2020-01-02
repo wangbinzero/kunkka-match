@@ -52,7 +52,7 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 		case enum.SideSell:
 			book.removeSellOrder(headOrder)
 		}
-		cache.RemoveOrder(headOrder.Symbol, headOrder.Action.String(), headOrder.OrderId)
+		cache.RemoveOrder(headOrder.Symbol, headOrder.OrderId, headOrder.Action.String())
 		log.Info("订单完全成交, 吃单id: [%s] 挂单id: [%s]  订单类型: [%v] 成交数量: %v\n", order.OrderId, headOrder.OrderId, order.OrderType, headOrder.Amount)
 	} else if result.Cmp(decimal.Zero) > 0 {
 		switch order.Side {
@@ -157,6 +157,7 @@ LOOP:
 	//如果限价买单为空 或者 价格小于卖单，则加入买单簿，不进行撮合
 	//否则进行撮合逻辑处理
 	if headOrder == (Order{}) || order.Price.LessThan(headOrder.Price) {
+		cache.SaveOrder(order.ToMap())
 		book.addBuyOrder(*order)
 		log.Info("撮合引擎 %s, 添加订单簿数据,买单: %s\n", order.Symbol, order.toJson())
 	} else {
