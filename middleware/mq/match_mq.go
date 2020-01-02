@@ -40,7 +40,6 @@ func InitEngineMQ() {
 		ExchangeName: "kunkka.exchange.match",
 		ExchangeType: "direct",
 	}
-	te.Content = "Hello World"
 	mq := NewAmqp(queueExchange)
 	mq.RegisterProducer(te)
 	mq.RegisterReceiver(te)

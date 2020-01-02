@@ -2,6 +2,7 @@ package engine
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/shopspring/decimal"
 	"kunkka-match/enum"
 	"kunkka-match/log"
@@ -14,7 +15,7 @@ type Trade struct {
 	TakerSide string          `json:"takerSide"`
 	Amount    decimal.Decimal `json:"amount"`
 	Price     decimal.Decimal `json:"price"`
-	Timestamp time.Time       `json:"timestamp"`
+	Timestamp int64           `json:"timestamp"`
 }
 
 //成交对象结果转换为json字符串
@@ -30,7 +31,7 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 	trade.MarkerId = headOrder.OrderId
 	trade.TakerId = order.OrderId
 	trade.TakerSide = order.Side.String()
-	trade.Timestamp = time.Now()
+	trade.Timestamp = time.Now().UnixNano() / 1e3
 	result := order.Amount.Sub(headOrder.Amount)
 	order.Amount = result
 	if result.Cmp(decimal.Zero) >= 0 {
@@ -76,9 +77,9 @@ func dealCreate(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	case enum.Limit:
 		dealLimit(order, book, lastTradePrice)
 	case enum.LimitIoc:
-		//dealLimitIoc(order, book, lastTradePrice)
+		dealLimitIoc(order, book, lastTradePrice)
 	case enum.Market:
-		//dealMarket(order, book, lastTradePrice)
+		dealMarket(order, book, lastTradePrice)
 	case enum.MarketTop5:
 		//dealMarketTop5(order, book, lastTradePrice)
 	case enum.MarketTop10:
@@ -89,7 +90,31 @@ func dealCreate(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	}
 }
 
-//限价挂单
+//市价，及时成交，剩余撤销
+func dealMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
+
+	switch order.Side {
+	case enum.SideBuy:
+		dealBuyMarket(order, book, lastTradePrice)
+	case enum.SideSell:
+		dealSellMarket(order, book, lastTradePrice)
+	}
+}
+
+func dealBuyMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
+
+}
+
+func dealSellMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
+
+}
+
+//订单如果不能立即成交则未成交部分直接撤单
+func dealLimitIoc(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
+
+}
+
+//限价单
 func dealLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	switch order.Side {
 	case enum.SideBuy:
@@ -120,9 +145,11 @@ func dealSellLimit(order *Order, book *OrderBook, lastTradePrice decimal.Decimal
 LOOP:
 	headOrder := book.getHeadBuyOrder()
 	if headOrder == (Order{}) || order.Price.GreaterThan(headOrder.Price) {
+		fmt.Println("加入卖单队列")
 		book.addSellOrder(*order)
 		log.Info("engine %s, a order added to the orderBook: %s\n", order.Symbol, order.toJson())
 	} else {
+		fmt.Println("开始撮合")
 		matchTrade(&headOrder, order, book, lastTradePrice)
 		if order.Amount.IsPositive() {
 			goto LOOP

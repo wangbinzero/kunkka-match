@@ -11,7 +11,6 @@ import (
 func Run(symbol string, price decimal.Decimal) {
 	lastTradePrice := price
 	book := &OrderBook{}
-	//初始化订单簿
 	book.init()
 	log.Info("engine [%s] startup success\n", symbol)
 	for {
