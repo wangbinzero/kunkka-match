@@ -38,6 +38,7 @@ func (this *Order) FromMap(data map[string]string) {
 	this.Timestamp = common.Wrap(s, 10)
 	this.Action = enum.OrderAction(data["action"])
 	this.OrderType = enum.OrderType(data["orderType"])
+	this.Side = enum.OrderSide(data["side"])
 }
 
 //对象转Map
@@ -49,5 +50,6 @@ func (this *Order) ToMap() map[string]interface{} {
 	orderMap["action"] = this.Action.String()
 	orderMap["price"] = this.Price.String()
 	orderMap["orderType"] = this.OrderType.String()
+	orderMap["side"] = this.Side.String()
 	return orderMap
 }
