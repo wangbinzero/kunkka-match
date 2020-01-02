@@ -35,7 +35,7 @@ POST http://127.0.0.1:8080/openMatching
 ```json
 {
 	"symbol":"btcusdt",  //交易标的
-	"price":7200  //开盘价
+	"price":7200         //开盘价
 }
 ```
 
