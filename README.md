@@ -21,7 +21,6 @@ go run main.go
 linux
 ```bash
 GOOS=linux GOARCH=amd64 go build main.go
-
 ./main
 ```
 

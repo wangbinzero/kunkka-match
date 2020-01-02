@@ -84,8 +84,8 @@ func UpdateOrder() {
 }
 
 // 删除缓存中订单信息
-func RemoveOrder(symbol, orderId string) {
-	middleware.RedisClient.Del(common.OrderKey + symbol + ":" + orderId)
+func RemoveOrder(symbol, orderId, action string) {
+	middleware.RedisClient.Del(common.OrderKey + symbol + ":" + orderId + ":" + action)
 }
 
 // 判断缓存中是否存在订单

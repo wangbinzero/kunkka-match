@@ -28,8 +28,6 @@ func Dispatch(order engine.Order) errcode.ErrorCode {
 	}
 
 	order.Timestamp = time.Now().UnixNano() / 1e3
-	cache.SaveOrder(order.ToMap())
 	engine.ChanMap[order.Symbol] <- order
-
 	return errcode.OK
 }

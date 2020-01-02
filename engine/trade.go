@@ -5,16 +5,17 @@ import (
 	"github.com/shopspring/decimal"
 	"kunkka-match/enum"
 	"kunkka-match/log"
+	"kunkka-match/middleware/cache"
 	"time"
 )
 
 type Trade struct {
-	MarkerId  string          `json:"markerId"`
-	TakerId   string          `json:"takerId"`
-	TakerSide string          `json:"takerSide"`
-	Amount    decimal.Decimal `json:"amount"`
-	Price     decimal.Decimal `json:"price"`
-	Timestamp int64           `json:"timestamp"`
+	MarkerId  string          `json:"markerId"`  //挂单id
+	TakerId   string          `json:"takerId"`   //吃单id
+	TakerSide string          `json:"takerSide"` //吃单方向
+	Amount    decimal.Decimal `json:"amount"`    //成交数量
+	Price     decimal.Decimal `json:"price"`     //成交价格
+	Timestamp int64           `json:"timestamp"` //成交时间戳
 }
 
 //成交对象结果转换为json字符串
@@ -26,22 +27,33 @@ func (this Trade) toJson() string {
 //成交撮合
 //做数量减法即可
 func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice decimal.Decimal) *Order {
-	var trade Trade
-	trade.MarkerId = headOrder.OrderId
-	trade.TakerId = order.OrderId
-	trade.TakerSide = order.Side.String()
-	trade.Timestamp = time.Now().UnixNano() / 1e3
 	result := order.Amount.Sub(headOrder.Amount)
 	order.Amount = result
+	// result > 0 表示订单部分成交 对手单完全成交
+	// result = 0 表示订单完全成交 对手单完全成交
+	// result < 0 表示订单完全成交 对手单部分成交
 	if result.Cmp(decimal.Zero) == 0 {
-		if headOrder.Side == enum.SideBuy {
-
+		switch headOrder.Side {
+		case enum.SideBuy:
 			book.removeBuyOrder(headOrder)
-
-		} else if headOrder.Side == enum.SideSell {
+		case enum.SideSell:
 			book.removeSellOrder(headOrder)
 		}
-	} else {
+		cache.RemoveOrder(headOrder.Symbol, headOrder.Action.String(), headOrder.OrderId)
+		log.Info("订单完全成交, 吃单id: [%s] 挂单id: [%s]  订单类型: [%v] 成交数量: %v\n", order.OrderId, headOrder.OrderId, order.OrderType, headOrder.Amount)
+	} else if result.Cmp(decimal.Zero) > 0 {
+		switch order.Side {
+		case enum.SideSell:
+			book.addSellOrder(*order)
+			break
+		case enum.SideBuy:
+			book.addBuyOrder(*order)
+			break
+		}
+		cache.SaveOrder(order.ToMap())
+
+		//TODO 交易标的最新价是在此处存如缓存吗
+	} else if result.Cmp(decimal.Zero) < 0 {
 
 	}
 
@@ -132,8 +144,13 @@ LOOP:
 		book.addBuyOrder(*order)
 		log.Info("撮合引擎 %s, 添加订单簿数据,买单: %s\n", order.Symbol, order.toJson())
 	} else {
-		log.Info("撮合引擎 %s,开始撮合\n", order.Symbol)
 		matchTrade(&headOrder, order, book, lastTradePrice)
+		var trade Trade
+		trade.MarkerId = headOrder.OrderId
+		trade.TakerId = order.OrderId
+		trade.TakerSide = order.Side.String()
+		trade.Timestamp = time.Now().UnixNano() / 1e3
+
 		if order.Amount.IsPositive() {
 			goto LOOP
 		}
@@ -149,7 +166,6 @@ LOOP:
 		book.addSellOrder(*order)
 		log.Info("撮合引擎 %s, 添加订单簿数据,卖单: %s\n", order.Symbol, order.toJson())
 	} else {
-		log.Info("撮合引擎 %s,开始撮合\n", order.Symbol)
 		matchTrade(&headOrder, order, book, lastTradePrice)
 		if order.Amount.IsPositive() {
 			goto LOOP
