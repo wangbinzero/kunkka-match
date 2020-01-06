@@ -52,6 +52,8 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 		case enum.SideSell:
 			book.removeSellOrder(headOrder)
 		}
+
+		//TODO 是否为了防止bug需要在将来也删除缓存 order
 		cache.RemoveOrder(headOrder.Symbol, headOrder.OrderId, headOrder.Action.String())
 		log.Info("订单完全成交, 吃单id: [%s] 挂单id: [%s]  订单类型: [%v] 成交数量: %v\n", order.OrderId, headOrder.OrderId, order.OrderType, headOrder.Amount)
 	} else if result.Cmp(decimal.Zero) > 0 {
@@ -65,8 +67,8 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 		}
 
 		cache.SaveOrder(order.ToMap())
-		cache.SavePrice(order.Symbol, currenDealPrice.String())
 		//TODO 交易标的最新价是在此处存如缓存吗
+		cache.SavePrice(order.Symbol, currenDealPrice.String())
 	} else if result.Cmp(decimal.Zero) < 0 {
 
 	}

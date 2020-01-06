@@ -19,7 +19,7 @@ var (
 func SendCancelResult(symbol, orderId string, ok bool) {
 	value := map[string]interface{}{"orderId": orderId, "ok": ok}
 	a := &redis.XAddArgs{
-		Stream:       common.OrderCancelStream + symbol,
+		Stream:       common.ORDER_CANCEL_STREAM + symbol,
 		MaxLenApprox: 1000,
 		Values:       value,
 	}
@@ -28,9 +28,10 @@ func SendCancelResult(symbol, orderId string, ok bool) {
 }
 
 //发送交易消息
+//Deprecated: SendTrade 不建议使用个，将来会丢弃
 func SendTrade(symbol string, trade map[string]interface{}) {
 	a := &redis.XAddArgs{
-		Stream:       common.TradeStream + symbol,
+		Stream:       common.TRADE_STREAM + symbol,
 		MaxLenApprox: 1000,
 		Values:       trade,
 	}
