@@ -13,6 +13,7 @@ type Trade struct {
 	MarkerId  string          `json:"markerId"`  //挂单id
 	TakerId   string          `json:"takerId"`   //吃单id
 	TakerSide string          `json:"takerSide"` //吃单方向
+	Remain    decimal.Decimal `json:"remain"`    //剩余量
 	Amount    decimal.Decimal `json:"amount"`    //成交数量
 	Price     decimal.Decimal `json:"price"`     //成交价格
 	Timestamp int64           `json:"timestamp"` //成交时间戳
@@ -87,10 +88,7 @@ func dealCancel(order *Order, book *OrderBook) {
 	case enum.SideSell:
 		book.removeSellOrder(order)
 	}
-
-	//TODO 移除缓存
-
-	//TODO 发送到消息队列
+	cache.RemoveOrder(order.Symbol, order.OrderId, enum.ActionCreate.String())
 	log.Info("撮合引擎: [%s],订单ID: [%s] 撤单结果: %v\n", order.Symbol, order.OrderId, ok)
 }
 
@@ -129,12 +127,31 @@ func dealMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 	}
 }
 
+//市价买单
 func dealBuyMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
-
+LOOP:
+	headerOrder := book.getHeadSellOrder()
+	if headerOrder == (Order{}) {
+		cache.SaveOrder(order.ToMap())
+		book.addBuyOrder(*order)
+		log.Info("撮合引擎 %s, 添加订单簿数据,市价买单: %s\n", order.Symbol, order.toJson())
+	} else {
+		matchTrade(&headerOrder, order, book, lastTradePrice)
+		goto LOOP
+	}
 }
 
+//市价卖单
 func dealSellMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
-
+LOOP:
+	headerOrder := book.getHeadBuyOrder()
+	if headerOrder == (Order{}) {
+		cache.SaveOrder(order.ToMap())
+		book.addSellOrder(*order)
+		log.Info("撮合引擎 %s, 添加订单簿数据,市价卖单: %s\n", order.Symbol, order.toJson())
+	} else {
+		goto LOOP
+	}
 }
 
 //订单如果不能立即成交则未成交部分直接撤单
@@ -165,14 +182,16 @@ LOOP:
 		log.Info("撮合引擎 %s, 添加订单簿数据,买单: %s\n", order.Symbol, order.toJson())
 	} else {
 		matchTrade(&headOrder, order, book, lastTradePrice)
-		var trade Trade
-		trade.MarkerId = headOrder.OrderId
-		trade.TakerId = order.OrderId
-		trade.TakerSide = order.Side.String()
-		trade.Timestamp = time.Now().UnixNano() / 1e3
-
+		var message Trade
+		message.MarkerId = headOrder.OrderId
+		message.TakerId = order.OrderId
+		message.TakerSide = order.Side.String()
+		message.Timestamp = time.Now().UnixNano() / 1e3
 		if order.Amount.IsPositive() {
+			message.Remain = order.Amount
 			goto LOOP
+		} else {
+			message.Remain = decimal.Zero
 		}
 	}
 }
@@ -187,8 +206,16 @@ LOOP:
 		log.Info("撮合引擎 %s, 添加订单簿数据,卖单: %s\n", order.Symbol, order.toJson())
 	} else {
 		matchTrade(&headOrder, order, book, lastTradePrice)
+		var message Trade
+		message.MarkerId = headOrder.OrderId
+		message.TakerId = order.OrderId
+		message.TakerSide = order.Side.String()
+		message.Timestamp = time.Now().UnixNano() / 1e3
 		if order.Amount.IsPositive() {
+			message.Remain = order.Amount
 			goto LOOP
+		} else {
+			message.Remain = decimal.Zero
 		}
 	}
 }
