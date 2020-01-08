@@ -130,27 +130,44 @@ func dealMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 //市价买单
 func dealBuyMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 LOOP:
-	headerOrder := book.getHeadSellOrder()
-	if headerOrder == (Order{}) {
+	headOrder := book.getHeadSellOrder()
+	if headOrder == (Order{}) {
 		cache.SaveOrder(order.ToMap())
 		book.addBuyOrder(*order)
 		log.Info("撮合引擎 %s, 添加订单簿数据,市价买单: %s\n", order.Symbol, order.toJson())
 	} else {
-		matchTrade(&headerOrder, order, book, lastTradePrice)
-		goto LOOP
+		matchTrade(&headOrder, order, book, lastTradePrice)
+		var message Trade
+		message.MarkerId = headOrder.OrderId
+		message.TakerId = order.OrderId
+		message.TakerSide = order.Side.String()
+		message.Timestamp = time.Now().UnixNano() / 1e3
+		SendMessage(*order, message)
+		if order.Amount.IsPositive() {
+			goto LOOP
+		}
 	}
 }
 
 //市价卖单
 func dealSellMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 LOOP:
-	headerOrder := book.getHeadBuyOrder()
-	if headerOrder == (Order{}) {
+	headOrder := book.getHeadBuyOrder()
+	if headOrder == (Order{}) {
 		cache.SaveOrder(order.ToMap())
 		book.addSellOrder(*order)
 		log.Info("撮合引擎 %s, 添加订单簿数据,市价卖单: %s\n", order.Symbol, order.toJson())
 	} else {
-		goto LOOP
+		matchTrade(&headOrder, order, book, lastTradePrice)
+		var message Trade
+		message.MarkerId = headOrder.OrderId
+		message.TakerId = order.OrderId
+		message.TakerSide = order.Side.String()
+		message.Timestamp = time.Now().UnixNano() / 1e3
+		SendMessage(*order, message)
+		if order.Amount.IsPositive() {
+			goto LOOP
+		}
 	}
 }
 
@@ -187,11 +204,9 @@ LOOP:
 		message.TakerId = order.OrderId
 		message.TakerSide = order.Side.String()
 		message.Timestamp = time.Now().UnixNano() / 1e3
+		SendMessage(*order, message)
 		if order.Amount.IsPositive() {
-			message.Remain = order.Amount
 			goto LOOP
-		} else {
-			message.Remain = decimal.Zero
 		}
 	}
 }
@@ -211,11 +226,9 @@ LOOP:
 		message.TakerId = order.OrderId
 		message.TakerSide = order.Side.String()
 		message.Timestamp = time.Now().UnixNano() / 1e3
+		SendMessage(*order, message)
 		if order.Amount.IsPositive() {
-			message.Remain = order.Amount
 			goto LOOP
-		} else {
-			message.Remain = decimal.Zero
 		}
 	}
 }
