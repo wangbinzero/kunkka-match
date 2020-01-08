@@ -8,6 +8,17 @@ import (
 	"strconv"
 )
 
+/**
+{
+	"action": "create",
+	"symbol": "btcusdt",
+	"orderId": "123456",
+	"side": "buy",
+	"orderType": "limit",
+	"amount": "1",
+	"price": 8100
+}
+*/
 type Order struct {
 	Action    enum.OrderAction `json:"action"`
 	Symbol    string           `json:"symbol"`

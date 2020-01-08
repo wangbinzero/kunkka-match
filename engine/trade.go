@@ -39,10 +39,10 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 		buyPrice, sellPrice = headOrder.Price, order.Price
 	}
 
+	order.Amount = order.Amount.Sub(headOrder.Amount)
+
 	//计算最新价
 	currenDealPrice := newDealPrice(pPrice, buyPrice, sellPrice)
-	result := order.Amount.Sub(headOrder.Amount)
-	order.Amount = result
 	// result > 0 表示订单部分成交 对手单完全成交
 	// result = 0 表示订单完全成交 对手单完全成交
 	// result < 0 表示订单完全成交 对手单部分成交
@@ -149,6 +149,16 @@ LOOP:
 	}
 }
 
+//订单剩余处理
+func orderRemain(order *Order, book *OrderBook) {
+	if order.Side == enum.SideBuy {
+		book.addBuyOrder(*order)
+	} else if order.Side == enum.SideSell {
+		book.addSellOrder(*order)
+	}
+	cache.SaveOrder(order.ToMap())
+}
+
 //市价卖单
 func dealSellMarket(order *Order, book *OrderBook, lastTradePrice decimal.Decimal) {
 LOOP:
@@ -167,6 +177,7 @@ LOOP:
 		SendMessage(*order, message)
 		if order.Amount.IsPositive() {
 			goto LOOP
+
 		}
 	}
 }

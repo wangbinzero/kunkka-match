@@ -26,6 +26,8 @@ func (m *Msg) Consumer(data []byte) error {
 	}
 	errco := process.Dispatch(order)
 	if errco.String() != errcode.OK.String() {
+
+		//TODO 订单已存在于订单簿中，是否需要返回调用端数据已存在？
 		log.Error("消费订单消息失败: 订单号: [%s] %s\n", order.OrderId, errco.String())
 	}
 	return nil
