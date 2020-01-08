@@ -43,39 +43,32 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 
 	//计算最新价
 	currenDealPrice := newDealPrice(pPrice, buyPrice, sellPrice)
-	// result > 0 表示订单部分成交 对手单完全成交
-	// result = 0 表示订单完全成交 对手单完全成交
-	// result < 0 表示订单完全成交 对手单部分成交
-	if result.Cmp(decimal.Zero) == 0 {
+
+	result := order.Amount.Sub(headOrder.Amount)
+	order.Amount = result
+
+	//如果结果为正数 或者==0 需要删除订单簿中的订单数据以及缓存数据
+	if result.IsPositive() || result.Equal(decimal.Zero) {
 		switch headOrder.Side {
 		case enum.SideBuy:
 			book.removeBuyOrder(headOrder)
 		case enum.SideSell:
 			book.removeSellOrder(headOrder)
 		}
-
-		//TODO 是否为了防止bug需要在将来也删除缓存 order
 		cache.RemoveOrder(headOrder.Symbol, headOrder.OrderId, headOrder.Action.String())
-		log.Info("订单完全成交, 吃单id: [%s] 挂单id: [%s]  订单类型: [%v] 成交数量: %v\n", order.OrderId, headOrder.OrderId, order.OrderType, headOrder.Amount)
-	} else if result.Cmp(decimal.Zero) > 0 {
-		switch order.Side {
-		case enum.SideSell:
-			book.addSellOrder(*order)
-			break
+	} else {
+		headOrder.Amount = headOrder.Amount.Sub(order.Amount)
+		switch headOrder.Side {
 		case enum.SideBuy:
-			book.addBuyOrder(*order)
-			break
+			book.removeBuyOrder(headOrder)
+			book.addBuyOrder(*headOrder)
+		case enum.SideSell:
+			book.removeSellOrder(headOrder)
+			book.addSellOrder(*headOrder)
 		}
-
-		cache.SaveOrder(order.ToMap())
-		//TODO 交易标的最新价是在此处存如缓存吗
-		cache.SavePrice(order.Symbol, currenDealPrice.String())
-	} else if result.Cmp(decimal.Zero) < 0 {
-
+		cache.RemoveOrder(headOrder.Symbol, headOrder.OrderId, headOrder.Action.String())
+		cache.SaveOrder(headOrder.ToMap())
 	}
-
-	//TODO 发送成交数据给行情系统
-	// 发送订单成交信息给业务系统
 	return order
 }
 

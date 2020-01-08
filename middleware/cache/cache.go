@@ -79,10 +79,6 @@ func GetOrder(symbol, orderId string) map[string]string {
 	return res
 }
 
-func UpdateOrder() {
-
-}
-
 // 删除缓存中订单信息
 func RemoveOrder(symbol, orderId, action string) {
 	middleware.RedisClient.Del(common.ORDER_KEY + symbol + ":" + orderId + ":" + action)
