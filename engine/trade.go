@@ -29,6 +29,7 @@ func (this Trade) toJson() string {
 //做数量减法即可
 func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice decimal.Decimal) *Order {
 	//上一笔最新成交价
+	// TODO lastTradePrice 目前未使用
 	pPrice := cache.GetPrice(order.Symbol)
 	var buyPrice decimal.Decimal
 	var sellPrice decimal.Decimal
@@ -41,8 +42,8 @@ func matchTrade(headOrder *Order, order *Order, book *OrderBook, lastTradePrice 
 
 	order.Amount = order.Amount.Sub(headOrder.Amount)
 
-	//计算最新价
-	currenDealPrice := newDealPrice(pPrice, buyPrice, sellPrice)
+	// TODO 计算最新价
+	_ = newDealPrice(pPrice, buyPrice, sellPrice)
 
 	result := order.Amount.Sub(headOrder.Amount)
 	order.Amount = result
