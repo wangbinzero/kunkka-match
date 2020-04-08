@@ -20,14 +20,14 @@ import (
 }
 */
 type Order struct {
-	Action    enum.OrderAction `json:"action"`
-	Symbol    string           `json:"symbol"`
-	OrderId   string           `json:"orderId"`
-	Side      enum.OrderSide   `json:"side"`
-	OrderType enum.OrderType   `json:"orderType"`
-	Amount    decimal.Decimal  `json:"amount"`
-	Price     decimal.Decimal  `json:"price"`
-	Timestamp int64            `json:"timestamp"`
+	Action    enum.OrderAction `json:"action"`    //创建订单  | 取消订单
+	Symbol    string           `json:"symbol"`    //标的
+	OrderId   string           `json:"orderId"`   //订单号
+	Side      enum.OrderSide   `json:"side"`      //买 | 卖
+	OrderType enum.OrderType   `json:"orderType"` //订单类型 限价 | 市价  ...
+	Amount    decimal.Decimal  `json:"amount"`    //数量
+	Price     decimal.Decimal  `json:"price"`     //价格
+	Timestamp int64            `json:"timestamp"` //时间戳
 }
 
 // 订单转换为json
