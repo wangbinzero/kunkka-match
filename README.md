@@ -4,9 +4,7 @@
 # kunkka-match
 
 
-### 打赏一下我这个穷人吧。有偿提供后续代码。同时也在找相关的工作。
-<img src="https://github.com/wangbinzero/kunkka-match/blob/master/IMG_0285.JPG" width="200px" height="200px"/>
-<img src="https://github.com/wangbinzero/kunkka-match/blob/master/IMG_0286.JPG" width="200px" height="200px"/>
+### 有幸得到大家的喜欢，由于当前代码只放了一部分。有兴趣的小伙伴加我微信一起探讨交流！个人的目标是做一版开源的！VX ：wangbin769558579
 
 高性能撮合引擎
 
